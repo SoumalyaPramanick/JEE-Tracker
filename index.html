@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JEE Astra: The AIR 100 Battle Plan</title>
+    <title>Astra Dashboard: The Ultimate War Room</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,11 +14,9 @@
                 extend: {
                     colors: {
                         slate: { 850: '#151e2e', 900: '#0f172a', 950: '#020617' },
-                        neon: { blue: '#38bdf8', purple: '#c084fc', pink: '#f472b6' }
+                        neon: { blue: '#38bdf8', purple: '#c084fc', pink: '#f472b6', green: '#4ade80', orange: '#fb923c' }
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    }
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
                 }
             }
         }
@@ -27,124 +25,103 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- NEW: Canvas Confetti for Dopamine Hits! 🎊 -->
+    <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
-        body {
-            background-color: #0f172a; 
-            color: #cbd5e1; 
-        }
+        body { background-color: #0f172a; color: #cbd5e1; overflow-x: hidden; }
         
         .glass-panel {
             background: rgba(30, 41, 59, 0.7); 
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(71, 85, 105, 0.4); 
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
         }
 
         .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 250px;
-            max-height: 350px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            position: relative; width: 100%; max-width: 600px;
+            margin: 0 auto; height: 250px; max-height: 350px;
+            display: flex; justify-content: center; align-items: center;
         }
-        
-        @media (min-width: 768px) {
-            .chart-container { height: 300px; }
-        }
+        @media (min-width: 768px) { .chart-container { height: 300px; } }
 
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        .phase-btn { transition: all 0.2s ease; }
+        .phase-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .phase-btn:active { transform: scale(0.9); }
         .phase-btn.active-theory { background-color: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #38bdf8; text-shadow: 0 0 8px rgba(56, 189, 248, 0.5); }
         .phase-btn.active-practice { background-color: rgba(192, 132, 252, 0.2); border-color: #c084fc; color: #c084fc; text-shadow: 0 0 8px rgba(192, 132, 252, 0.5); }
         .phase-btn.active-mock { background-color: rgba(244, 114, 182, 0.2); border-color: #f472b6; color: #f472b6; text-shadow: 0 0 8px rgba(244, 114, 182, 0.5); }
         
-        @keyframes float {
-            0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(5deg); }
-            100% { transform: translateY(0px) rotate(0deg); }
-        }
+        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
         .animate-float { animation: float 4s ease-in-out infinite; }
         
-        @keyframes pulse-neon {
-            0%, 100% { box-shadow: 0 0 5px rgba(56,189,248,0.5), 0 0 20px rgba(56,189,248,0.3); }
-            50% { box-shadow: 0 0 15px rgba(56,189,248,0.8), 0 0 30px rgba(56,189,248,0.5); }
-        }
+        @keyframes pulse-neon { 0%, 100% { box-shadow: 0 0 5px rgba(56,189,248,0.5), 0 0 20px rgba(56,189,248,0.3); } 50% { box-shadow: 0 0 15px rgba(56,189,248,0.8), 0 0 30px rgba(56,189,248,0.5); } }
         .neon-glow { animation: pulse-neon 2s infinite; }
 
-        /* --- NEW: Dynamic Visual Background Styles 🌌 --- */
-        .bg-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(90px);
-            z-index: -1;
-            opacity: 0.3;
-            animation: drift 20s infinite alternate ease-in-out;
-            pointer-events: none;
-        }
-        .orb-1 { width: 40vw; height: 40vw; background: #c084fc; top: -10%; left: -10%; animation-duration: 25s; }
+        @keyframes pulse-donate { 0%, 100% { box-shadow: 0 0 15px rgba(244, 114, 182, 0.5); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(244, 114, 182, 0.9); transform: scale(1.05); } }
+        .btn-donate { animation: pulse-donate 2s infinite; }
+
+        /* Dynamic Background 🌌 */
+        .bg-orb { position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1; opacity: 0.25; animation: drift 20s infinite alternate ease-in-out; pointer-events: none; }
+        .orb-1 { width: 45vw; height: 45vw; background: #c084fc; top: -10%; left: -10%; animation-duration: 25s; }
         .orb-2 { width: 35vw; height: 35vw; background: #38bdf8; bottom: -10%; right: -10%; animation-duration: 30s; animation-direction: alternate-reverse; }
-        .orb-3 { width: 25vw; height: 25vw; background: #f472b6; top: 40%; left: 50%; animation-duration: 22s; opacity: 0.2; }
-
-        @keyframes drift {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(50px, -50px) scale(1.1); }
-        }
-
-        .star {
-            position: fixed;
-            background: white;
-            border-radius: 50%;
-            z-index: -1;
-            pointer-events: none;
-            animation: twinkle var(--duration) infinite alternate ease-in-out;
-        }
-        @keyframes twinkle {
-            0% { opacity: 0.1; transform: scale(0.8); }
-            100% { opacity: 0.7; transform: scale(1.3); }
-        }
+        .orb-3 { width: 30vw; height: 30vw; background: #fb923c; top: 40%; left: 50%; animation-duration: 22s; opacity: 0.15; }
+        @keyframes drift { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(60px, -60px) scale(1.1); } }
+        .star { position: fixed; background: white; border-radius: 50%; z-index: -1; pointer-events: none; animation: twinkle var(--duration) infinite alternate ease-in-out; }
+        @keyframes twinkle { 0% { opacity: 0.1; transform: scale(0.8); } 100% { opacity: 0.8; transform: scale(1.4); } }
 
         /* Floating Timer Styles */
-        #floating-timer {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 99;
-            cursor: grab;
-            user-select: none;
-            transition: transform 0.2s;
-        }
-        #floating-timer:active { cursor: grabbing; transform: scale(0.95); }
+        #floating-timer { position: fixed; bottom: 20px; right: 20px; z-index: 99; cursor: grab; user-select: none; transition: transform 0.1s; }
+        #floating-timer:active { cursor: grabbing; transform: scale(0.98); }
+        
+        /* Interactive Card Tilt */
+        .tilt-card { transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s; }
+        .tilt-card:hover { transform: translateY(-5px) rotate(1deg); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col" onload="initApp()">
+
+    <!-- SAFE-LIST HACK FOR TAILWIND DYNAMIC CLASSES (DO NOT REMOVE) 👻 -->
+    <div class="hidden grid-cols-2 grid-cols-3 md:grid-cols-3 md:grid-cols-4 text-neon-blue text-neon-purple text-neon-pink text-neon-green text-neon-orange border-neon-blue border-neon-purple border-neon-pink border-neon-green border-neon-orange bg-neon-blue/20 bg-neon-purple/20 bg-neon-pink/20 bg-neon-green/20 bg-neon-orange/20"></div>
 
     <!-- Top Navigation -->
     <nav class="sticky top-0 z-50 glass-panel border-b border-slate-700/50 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between py-3 sm:h-16 gap-3">
-                <div class="flex items-center gap-3 cursor-pointer group" onclick="firePanicButton()">
-                    <span class="text-3xl animate-float group-hover:scale-110 transition-transform">🚀</span>
-                    <div>
-                        <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink tracking-tight flex items-center">
-                            JEE Astra 💥
-                            <span class="ml-2 text-[8px] bg-yellow-400/20 text-yellow-400 border border-yellow-400/50 px-2 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">Don't Panic 🚨</span>
-                        </h1>
-                        <p class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold mt-0.5 group-hover:text-neon-blue transition-colors">AIR 100 Battle Plan</p>
+                <div class="flex items-center gap-4">
+                    <div class="cursor-pointer group flex items-center gap-3" onclick="firePanicButton()">
+                        <span class="text-3xl animate-float group-hover:scale-110 transition-transform" id="app-emoji">🚀</span>
+                        <div>
+                            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink tracking-tight flex items-center">
+                                <span id="app-title">JEE Astra</span> 💥
+                                <span class="ml-2 text-[8px] bg-yellow-400/20 text-yellow-400 border border-yellow-400/50 px-2 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">Don't Panic 🚨</span>
+                            </h1>
+                            <p class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold mt-0.5 group-hover:text-neon-blue transition-colors">The War Room</p>
+                        </div>
                     </div>
+                    
+                    <!-- Multiverse Exam Selector -->
+                    <select id="exam-selector" onchange="switchExam()" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg focus:ring-neon-purple focus:border-neon-purple block p-2 ml-2 sm:ml-6 shadow-[0_0_10px_rgba(192,132,252,0.2)] cursor-pointer outline-none">
+                        <option value="JEE">🎯 Target: JEE (PCM)</option>
+                        <option value="NEET">🩺 Target: NEET (PCB)</option>
+                        <option value="UPSC">🇮🇳 Target: UPSC (CSE)</option>
+                    </select>
                 </div>
-                <div class="flex space-x-2 overflow-x-auto hide-scrollbar pb-1 sm:pb-0" id="nav-buttons">
-                    <!-- Nav buttons injected via JS -->
+                
+                <div class="flex items-center gap-4">
+                    <!-- NEW: The Daily Streak 🔥 -->
+                    <div class="hidden sm:flex items-center gap-2 bg-slate-900 border border-orange-500/50 px-3 py-1 rounded-full shadow-[0_0_10px_rgba(251,146,60,0.2)]">
+                        <span class="text-orange-500 text-sm animate-pulse">🔥</span>
+                        <span class="text-xs font-bold text-orange-400" id="streak-counter">0 Day Streak</span>
+                    </div>
+                    
+                    <div class="flex space-x-2 overflow-x-auto hide-scrollbar pb-1 sm:pb-0" id="nav-buttons">
+                        <!-- Nav buttons injected via JS -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -155,65 +132,101 @@
         <!-- Content injected via JS -->
     </main>
 
-    <footer class="border-t border-slate-800 mt-auto py-6 text-center text-slate-500 text-sm flex flex-col items-center gap-3">
-        <p>Stay Hard. The syllabus is finite; your potential is not. 🏰 IIT Bombay is waiting for you, boss! 🔥</p>
-        <button onclick="toggleSupportModal()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-full border border-slate-600 transition-all hover:scale-105 hover:border-neon-pink hover:text-white shadow-[0_0_10px_rgba(244,114,182,0.1)]">
-            ☕ Buy the developer a Red Bull
+    <footer class="border-t border-slate-800 mt-auto py-10 text-center text-slate-500 text-sm flex flex-col items-center gap-5 relative z-10 bg-slate-900/80">
+        <p id="footer-text" class="text-base font-semibold">Stay Hard. The syllabus is finite; your potential is not. 🏰 IIT Bombay is waiting for you, boss! 🔥</p>
+        
+        <!-- Hyper-visible Donation Button -->
+        <button onclick="toggleSupportModal()" class="btn-donate flex items-center justify-center gap-3 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white px-8 py-4 rounded-full border-2 border-pink-400/50 shadow-lg font-extrabold text-lg tracking-widest uppercase">
+            <span class="text-2xl animate-bounce">💸</span> Support The Dev! <span class="text-2xl animate-bounce">⚡</span>
+        </button>
+
+        <!-- Factory Reset Nuke -->
+        <button onclick="nukeDatabase()" class="mt-4 text-[10px] uppercase tracking-widest text-slate-600 hover:text-red-500 transition-colors flex items-center gap-1">
+            <span>☢️</span> Reset All Progress Data
         </button>
     </footer>
 
     <!-- Support / Tip Modal -->
     <div id="supportModal" class="fixed inset-0 z-[100] bg-black/80 hidden flex-col items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 opacity-0">
-        <div class="max-w-sm w-full bg-slate-900 border border-slate-600 rounded-2xl p-6 text-center shadow-[0_0_30px_rgba(244,114,182,0.2)] transform scale-95 transition-transform duration-300 relative" id="supportContent">
+        <div class="max-w-sm w-full bg-slate-900 border border-pink-500 rounded-2xl p-6 text-center shadow-[0_0_50px_rgba(244,114,182,0.4)] transform scale-95 transition-transform duration-300 relative" id="supportContent">
+            <button onclick="toggleSupportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-3xl font-bold">&times;</button>
+            <h2 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500 mb-2 uppercase tracking-wider">Fuel the Grind ⚡</h2>
+            <p class="text-slate-300 text-sm mb-4 font-medium">This tracker is 100% free. If it's saving your prep, drop a tip to fuel my 2 AM coding sessions. May the examiners bless your paper. 🙏</p>
             
-            <button onclick="toggleSupportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">&times;</button>
-            
-            <h2 class="text-2xl font-bold text-white mb-2">Fuel the Grind ⚡</h2>
-            <p class="text-slate-400 text-sm mb-4">If this tracker is saving your JEE prep, drop a tip so I can survive my own 2 AM study sessions. May NTA bless you. 🙏</p>
-            
-            <div class="bg-white p-2 rounded-xl inline-block mb-4">
-                <!-- IMPORTANT: Make sure your image uploaded to github is named exactly upi.png -->
-                <img src="upi.png" alt="UPI QR Code" class="w-48 h-48 object-cover rounded-lg border border-gray-200">
+            <div class="bg-slate-800 p-2 rounded-xl inline-block mb-4 relative min-h-[192px] min-w-[192px] flex items-center justify-center border-2 border-slate-600">
+                <img src="upi.png" alt="UPI QR Code Placeholder" class="w-48 h-48 object-cover rounded-lg z-10 relative shadow-md" onerror="this.style.display='none'; document.getElementById('qr-fallback').classList.remove('hidden'); document.getElementById('qr-fallback').classList.add('flex');">
+                
+                <div id="qr-fallback" class="hidden absolute inset-0 w-full h-full bg-slate-800 rounded-lg flex-col items-center justify-center text-slate-500 text-center p-2 z-0">
+                    <span class="text-4xl mb-2">📸</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Upload upi.png<br>to GitHub Repo</span>
+                </div>
             </div>
             
-            <p class="text-xs text-neon-pink font-mono tracking-widest uppercase">Scan any UPI App</p>
+            <p class="text-sm text-neon-pink font-mono tracking-widest uppercase font-bold bg-pink-500/10 py-2 rounded-lg border border-pink-500/30">Scan any UPI App</p>
         </div>
     </div>
 
-    <!-- NEW: Floating Pomodoro Timer + AUDIO HUB 🎧 -->
-    <div id="floating-timer" class="glass-panel p-4 rounded-2xl border border-slate-600 shadow-[0_0_20px_rgba(0,0,0,0.5)] flex flex-col items-center gap-2">
-        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider" id="timer-mode">Grind Phase 🧠</div>
-        <div class="text-3xl font-mono font-extrabold text-neon-blue" id="timer-display">25:00</div>
-        <div class="flex gap-2 w-full">
-            <button onclick="toggleTimer()" id="timer-btn" class="flex-1 bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-sm transition-colors">▶️ Start</button>
-            <button onclick="switchTimerMode()" class="flex-1 bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-sm transition-colors border border-slate-600">🔄 Switch</button>
+    <!-- Enhanced Floating Pomodoro Timer + AUDIO HUB 🎧 -->
+    <div id="floating-timer" class="glass-panel p-4 rounded-2xl border border-slate-600 shadow-[0_0_30px_rgba(0,0,0,0.6)] flex flex-col items-center gap-2 w-56">
+        <div class="flex justify-between w-full items-center cursor-grab active:cursor-grabbing">
+            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex-1 pointer-events-none" id="timer-mode">Grind Phase 🧠</div>
+            <select id="pomodoro-settings" onchange="updateTimerLength()" class="bg-slate-900 border border-slate-600 text-slate-300 text-[10px] rounded p-1 outline-none cursor-pointer">
+                <option value="25">25m 🍅</option>
+                <option value="50">50m ⚡</option>
+                <option value="90">90m 👹</option>
+            </select>
         </div>
-        <!-- NEW: Lo-Fi Hum Toggle -->
-        <button onclick="toggleAudioHum()" id="audio-btn" class="w-full mt-1 bg-slate-900/80 hover:bg-slate-800 px-2 py-1.5 rounded text-xs text-slate-400 font-bold tracking-wider transition-all border border-slate-700 uppercase">
-            🎧 Deep Space Hum: OFF
+        
+        <div class="text-4xl font-mono font-extrabold text-neon-blue drop-shadow-[0_0_8px_rgba(56,189,248,0.5)] pointer-events-none" id="timer-display">25:00</div>
+        
+        <div class="flex gap-2 w-full">
+            <button onclick="toggleTimer()" id="timer-btn" class="flex-1 bg-slate-700 hover:bg-slate-600 py-1.5 rounded text-sm transition-all active:scale-95 shadow-md font-semibold">▶️ Start</button>
+            <button onclick="switchTimerMode()" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded text-sm transition-all active:scale-95 border border-slate-600 shadow-md">🔄</button>
+        </div>
+        
+        <div class="w-full h-px bg-slate-700 my-1 pointer-events-none"></div>
+        
+        <select id="audio-type" onchange="changeAudioType()" class="w-full bg-slate-900 border border-slate-600 text-slate-300 text-[10px] rounded p-1 outline-none mb-1 cursor-pointer">
+            <option value="space">🚀 Deep Space Hum</option>
+            <option value="rain">🌧️ Monsoon Rain</option>
+            <option value="binaural">🧠 Binaural Focus (Alpha)</option>
+        </select>
+        <button onclick="toggleAudioHub()" id="audio-btn" class="w-full bg-slate-900/80 hover:bg-slate-800 px-2 py-1.5 rounded text-xs text-slate-400 font-bold tracking-wider transition-all border border-slate-700 uppercase active:scale-95">
+            🎧 Audio: OFF
         </button>
     </div>
 
-    <!-- Panic Modal (Easter Egg) -->
-    <div id="panicModal" class="fixed inset-0 z-[100] bg-black/90 hidden flex-col items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 opacity-0">
-        <div class="max-w-md w-full bg-slate-900 border-2 border-red-500 rounded-2xl p-8 text-center shadow-[0_0_50px_rgba(239,68,68,0.5)] transform scale-95 transition-transform duration-300" id="panicContent">
-            <div class="text-6xl mb-4 animate-bounce">🚨</div>
-            <h2 class="text-3xl font-extrabold text-white mb-4 uppercase tracking-widest">Are you crying?</h2>
-            <p class="text-slate-300 mb-6">Listen here. Irodov is crying because it has to face YOU. Put the coffee down, take a deep breath, and remember why you started.</p>
-            <div class="w-full bg-slate-800 rounded-xl p-4 mb-6 border border-slate-700">
-                <p class="text-neon-pink font-bold text-lg" id="motivationalQuote">"You don't drown by falling in the water; you drown by staying there."</p>
+    <!-- NEW: QUIZ MODAL (Test Your Might) 🧠 -->
+    <div id="quizModal" class="fixed inset-0 z-[100] bg-black/80 hidden flex-col items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+        <div class="max-w-lg w-full bg-slate-900 border-2 border-neon-blue rounded-2xl p-6 shadow-[0_0_40px_rgba(56,189,248,0.3)] transform scale-95 transition-transform duration-300 relative" id="quizContent">
+            <button onclick="closeQuizModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
+            
+            <div class="flex items-center justify-between mb-4 mt-2">
+                <span class="text-xs font-bold uppercase tracking-widest text-slate-400" id="quizSubject">Subject</span>
+                <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-md border" id="quizBadge">Difficulty</span>
             </div>
-            <button onclick="closePanicButton()" class="w-full bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-lg">
-                I'm ready to destroy chapters now 😤
+            
+            <h3 class="text-xl font-semibold text-white mb-6 leading-relaxed" id="quizQuestion">Question goes here?</h3>
+            
+            <div class="flex flex-col gap-3" id="quizOptions">
+                <!-- Options injected by JS -->
+            </div>
+            
+            <div class="mt-4 text-center min-h-[24px]">
+                <p id="quizFeedback" class="text-sm font-bold animate-pulse"></p>
+            </div>
+            
+            <button onclick="openQuizModal()" id="quizNextBtn" class="hidden w-full mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-all shadow-md">
+                Hit me with another one 🥊
             </button>
         </div>
     </div>
 
-    <!-- NEW: NTA Roulette Modal -->
+    <!-- NTA Roulette Modal -->
     <div id="rouletteModal" class="fixed inset-0 z-[100] bg-black/80 hidden flex-col items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 opacity-0">
         <div class="max-w-md w-full bg-slate-900 border-2 border-neon-purple rounded-2xl p-8 text-center shadow-[0_0_50px_rgba(192,132,252,0.3)] transform scale-95 transition-transform duration-300" id="rouletteContent">
             <div class="text-6xl mb-4 animate-spin" style="animation-duration: 3s;">🎲</div>
-            <h2 class="text-2xl font-extrabold text-white mb-2 uppercase tracking-widest">NTA Demands You Study:</h2>
+            <h2 class="text-2xl font-extrabold text-white mb-2 uppercase tracking-widest" id="rouletteTitle">NTA Demands You Study:</h2>
             <div class="w-full bg-slate-800 rounded-xl p-6 mb-6 border border-slate-700 mt-4">
                 <p class="text-slate-400 text-sm mb-1 uppercase tracking-widest" id="rouletteSubject">Subject</p>
                 <p class="text-neon-blue font-bold text-2xl" id="rouletteChapter">Chapter Name</p>
@@ -224,72 +237,201 @@
         </div>
     </div>
 
+    <!-- Panic Modal -->
+    <div id="panicModal" class="fixed inset-0 z-[100] bg-black/90 hidden flex-col items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+        <div class="max-w-md w-full bg-slate-900 border-2 border-red-500 rounded-2xl p-8 text-center shadow-[0_0_50px_rgba(239,68,68,0.5)] transform scale-95 transition-transform duration-300" id="panicContent">
+            <div class="text-6xl mb-4 animate-bounce">🚨</div>
+            <h2 class="text-3xl font-extrabold text-white mb-4 uppercase tracking-widest">Are you crying?</h2>
+            <p class="text-slate-300 mb-6">Listen here. The syllabus is crying because it has to face YOU. Put the coffee down, take a deep breath, and remember why you started.</p>
+            <div class="w-full bg-slate-800 rounded-xl p-4 mb-6 border border-slate-700">
+                <p class="text-neon-pink font-bold text-lg italic" id="motivationalQuote">"You don't drown by falling in the water; you drown by staying there."</p>
+            </div>
+            <button onclick="closePanicButton()" class="w-full bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-lg">
+                I'm ready to destroy chapters now 😤
+            </button>
+        </div>
+    </div>
+
     <!-- JavaScript Application Logic -->
     <script>
-        // --- 1. DATA STORAGE ---
-        const syllabusData = {
-            Physics: [
-                { id: 'p1', name: 'Units & Dimensions', topics: 'Error analysis, Dimensional analysis, Vernier/Screw Gauge', theory: false, practice: false, mock: false },
-                { id: 'p2', name: 'Kinematics', topics: 'Projectile motion (inclined plane), Relative motion (Rain-man)', theory: false, practice: false, mock: false },
-                { id: 'p3', name: 'Laws of Motion & Friction', topics: 'Free Body Diagrams (FBD), Pulley-string constraints, Pseudo forces', theory: false, practice: false, mock: false },
-                { id: 'p4', name: 'Work, Energy & Power', topics: 'Work-Energy Theorem, Conservative forces, Vertical circular motion', theory: false, practice: false, mock: false },
-                { id: 'p5', name: 'System of Particles (COM)', topics: 'Collisions (Elastic/Inelastic), Impulse, Center of Mass of bodies', theory: false, practice: false, mock: false },
-                { id: 'p6', name: 'Rotational Dynamics', topics: 'Moment of Inertia, Torque, Angular Momentum, Rolling motion', theory: false, practice: false, mock: false },
-                { id: 'p7', name: 'Gravitation', topics: 'Kepler’s Laws, Gravitational Potential, Escape Velocity', theory: false, practice: false, mock: false },
-                { id: 'p8', name: 'Properties of Matter', topics: 'Hooke\'s Law, Fluid Statics (Archimedes), Viscosity (Stokes\' Law)', theory: false, practice: false, mock: false },
-                { id: 'p9', name: 'Thermodynamics', topics: 'P−V diagrams, Carnot Engine, Specific heat, Laws of TD', theory: false, practice: false, mock: false },
-                { id: 'p10', name: 'SHM & Waves', topics: 'Simple Pendulum, Superposition, Doppler Effect, String waves', theory: false, practice: false, mock: false },
-                { id: 'p11', name: 'Electrostatics & Current', topics: 'Gauss Law, Capacitance, Kirchhoff’s Laws, Wheatstone Bridge', theory: false, practice: false, mock: false },
-                { id: 'p12', name: 'Magnetism & EMI', topics: 'Biot-Savart, Lorentz Force, Faraday’s Law, Lenz’s Law, AC circuits', theory: false, practice: false, mock: false },
-                { id: 'p13', name: 'Optics', topics: 'Ray Optics (Lenses/Mirrors), Wave Optics (YDSE), Polarization', theory: false, practice: false, mock: false },
-                { id: 'p14', name: 'Modern Physics', topics: 'Photoelectric Effect, Bohr\'s Model, Radioactivity, Half-life', theory: false, practice: false, mock: false }
+        // --- 1. THE MULTIVERSE DATA STORAGE ---
+        // (Clean Reset Logic references this)
+        const getFreshData = () => ({
+            JEE: {
+                Physics: [
+                    { id: 'j_p1', name: 'Units & Dimensions', topics: 'Error analysis, Dimensional analysis', theory: false, practice: false, mock: false },
+                    { id: 'j_p2', name: 'Kinematics', topics: 'Projectile motion, Relative motion', theory: false, practice: false, mock: false },
+                    { id: 'j_p3', name: 'Laws of Motion', topics: 'FBDs, Pulley-string, Pseudo forces', theory: false, practice: false, mock: false },
+                    { id: 'j_p4', name: 'Work & Energy', topics: 'Work-Energy Theorem, Conservative forces', theory: false, practice: false, mock: false },
+                    { id: 'j_p5', name: 'Rotational Dynamics', topics: 'Moment of Inertia, Torque, Rolling', theory: false, practice: false, mock: false },
+                    { id: 'j_p6', name: 'Thermodynamics', topics: 'Carnot Engine, Laws of TD', theory: false, practice: false, mock: false },
+                    { id: 'j_p7', name: 'Electrostatics', topics: 'Gauss Law, Capacitance', theory: false, practice: false, mock: false }
+                ],
+                Chemistry: [
+                    { id: 'j_c1', name: 'Mole Concept', topics: 'Stoichiometry, Limiting reagent', theory: false, practice: false, mock: false },
+                    { id: 'j_c2', name: 'Atomic Structure', topics: 'Quantum numbers, Aufbau', theory: false, practice: false, mock: false },
+                    { id: 'j_c3', name: 'Chemical Bonding', topics: 'VSEPR, Hybridization, MOT', theory: false, practice: false, mock: false },
+                    { id: 'j_c4', name: 'Thermodynamics', topics: 'Enthalpy, Entropy, Gibbs', theory: false, practice: false, mock: false },
+                    { id: 'j_c5', name: 'Organic: GOC', topics: 'Resonance, Inductive, Isomerism', theory: false, practice: false, mock: false }
+                ],
+                Mathematics: [
+                    { id: 'j_m1', name: 'Functions', topics: 'Domain/Range, Inverse functions', theory: false, practice: false, mock: false },
+                    { id: 'j_m2', name: 'Quadratic Equations', topics: 'Nature of roots, Location of roots', theory: false, practice: false, mock: false },
+                    { id: 'j_m3', name: 'Calculus: Limits', topics: 'L-Hopital, Squeeze theorem', theory: false, practice: false, mock: false },
+                    { id: 'j_m4', name: 'Vectors & 3D', topics: 'Triple Products, Shortest distance', theory: false, practice: false, mock: false },
+                    { id: 'j_m5', name: 'Coordinate Geo', topics: 'Conic Sections, Tangents/Normals', theory: false, practice: false, mock: false }
+                ]
+            },
+            NEET: {
+                Physics: [
+                    { id: 'n_p1', name: 'Mechanics (Basics)', topics: 'Kinematics, NLM, Work Energy', theory: false, practice: false, mock: false },
+                    { id: 'n_p2', name: 'Fluids & Properties', topics: 'Viscosity, Surface Tension', theory: false, practice: false, mock: false },
+                    { id: 'n_p3', name: 'Optics', topics: 'Ray Optics, Microscopes, Telescopes', theory: false, practice: false, mock: false },
+                    { id: 'n_p4', name: 'Modern Physics', topics: 'Dual Nature, Atoms, Nuclei', theory: false, practice: false, mock: false }
+                ],
+                Chemistry: [
+                    { id: 'n_c1', name: 'Inorganic Trends', topics: 'S, P, D, F Blocks, Coordination', theory: false, practice: false, mock: false },
+                    { id: 'n_c2', name: 'Physical Chem', topics: 'Solutions, Electrochemistry, Kinetics', theory: false, practice: false, mock: false },
+                    { id: 'n_c3', name: 'Organic Reactions', topics: 'Hydrocarbons, Aldehydes, Amines', theory: false, practice: false, mock: false }
+                ],
+                Biology: [
+                    { id: 'n_b1', name: 'Human Physiology', topics: 'Digestion, Circulation, Nervous System', theory: false, practice: false, mock: false },
+                    { id: 'n_b2', name: 'Plant Physiology', topics: 'Photosynthesis, Respiration', theory: false, practice: false, mock: false },
+                    { id: 'n_b3', name: 'Genetics', topics: 'Mendelian, Molecular Basis of Inheritance', theory: false, practice: false, mock: false },
+                    { id: 'n_b4', name: 'Ecology', topics: 'Ecosystems, Biodiversity', theory: false, practice: false, mock: false },
+                    { id: 'n_b5', name: 'Cell Biology', topics: 'Cell Structure, Cell Cycle, Mitosis', theory: false, practice: false, mock: false }
+                ]
+            },
+            UPSC: {
+                Polity: [
+                    { id: 'u_p1', name: 'Const. Framework', topics: 'Making of Const, Preamble, Fund. Rights', theory: false, practice: false, mock: false },
+                    { id: 'u_p2', name: 'System of Govt', topics: 'Parliamentary System, Federal System', theory: false, practice: false, mock: false },
+                    { id: 'u_p3', name: 'Central & State Govt', topics: 'President, PM, Parliament, Governor', theory: false, practice: false, mock: false },
+                    { id: 'u_p4', name: 'Constitutional Bodies', topics: 'EC, UPSC, SPSC, Finance Commission', theory: false, practice: false, mock: false }
+                ],
+                History: [
+                    { id: 'u_h1', name: 'Ancient India', topics: 'IVC, Vedic, Buddhism, Jainism, Mauryas', theory: false, practice: false, mock: false },
+                    { id: 'u_h2', name: 'Medieval India', topics: 'Delhi Sultanate, Mughals, Marathas', theory: false, practice: false, mock: false },
+                    { id: 'u_h3', name: 'Modern India', topics: 'British Conquest, Revolt 1857, Freedom Struggle', theory: false, practice: false, mock: false },
+                    { id: 'u_h4', name: 'Art & Culture', topics: 'Architecture, Paintings, Classical Dances', theory: false, practice: false, mock: false }
+                ],
+                Geography: [
+                    { id: 'u_g1', name: 'Physical Geo', topics: 'Geomorphology, Climatology, Oceanography', theory: false, practice: false, mock: false },
+                    { id: 'u_g2', name: 'Indian Geo', topics: 'Drainage, Climate, Soils, Agriculture', theory: false, practice: false, mock: false },
+                    { id: 'u_g3', name: 'Human Geo', topics: 'Demographics, Migration, Settlements', theory: false, practice: false, mock: false }
+                ],
+                Economy: [
+                    { id: 'u_e1', name: 'Macroeconomics', topics: 'GDP, Inflation, Banking, Monetary Policy', theory: false, practice: false, mock: false },
+                    { id: 'u_e2', name: 'External Sector', topics: 'BOP, FOREX, International Orgs (IMF, WTO)', theory: false, practice: false, mock: false },
+                    { id: 'u_e3', name: 'Public Finance', topics: 'Budgeting, Taxation, Fiscal Policy', theory: false, practice: false, mock: false }
+                ]
+            }
+        });
+
+        let ALL_EXAMS_DATA = getFreshData();
+
+        // --- NEW: THE QUIZ DATABASE 🧠 ---
+        const QUIZ_DB = {
+            JEE: [
+                { q: "A particle is projected at 45°. The kinetic energy at the highest point is...", options: ["Zero", "Half of initial", "Same as initial", "One fourth"], answer: 1, diff: "Easy", subj: "Physics" },
+                { q: "In a Carnot engine, if source temperature is infinite, efficiency is:", options: ["0", "1 (100%)", "Infinite", "Depends on sink"], answer: 1, diff: "Hard", subj: "Physics" },
+                { q: "Which of the following is the most stable carbocation?", options: ["Primary", "Secondary", "Tertiary", "Methyl"], answer: 2, diff: "Easy", subj: "Chemistry" },
+                { q: "Which effect operates via delocalization of pi electrons?", options: ["Inductive", "Electromeric", "Resonance / Mesomeric", "Hyperconjugation"], answer: 2, diff: "Hard", subj: "Chemistry" },
+                { q: "Value of limit x->0 (sin x)/x is:", options: ["0", "1", "Infinity", "Undefined"], answer: 1, diff: "Easy", subj: "Mathematics" },
+                { q: "If A and B are symmetric matrices of the same order, then AB - BA is a:", options: ["Symmetric matrix", "Skew-symmetric matrix", "Zero matrix", "Identity matrix"], answer: 1, diff: "Hard", subj: "Mathematics" }
             ],
-            Chemistry: [
-                { id: 'c1', name: 'Mole Concept', topics: 'Stoichiometry, Limiting reagent, Concentration terms (M,m)', theory: false, practice: false, mock: false },
-                { id: 'c2', name: 'Atomic Structure', topics: 'Quantum numbers, Aufbau principle, Heisenberg’s Uncertainty', theory: false, practice: false, mock: false },
-                { id: 'c3', name: 'Chemical Bonding', topics: 'VSEPR Theory, Hybridization, Molecular Orbital Theory (MOT)', theory: false, practice: false, mock: false },
-                { id: 'c4', name: 'Thermodynamics', topics: 'Enthalpy, Entropy (ΔS), Gibbs Free Energy (ΔG)', theory: false, practice: false, mock: false },
-                { id: 'c5', name: 'Equilibrium', topics: 'Le Chatelier’s principle, pH of Buffers, Solubility Product (Ksp)', theory: false, practice: false, mock: false },
-                { id: 'c6', name: 'Organic: GOC & Hydrocarbons', topics: 'Inductive/Resonance effects, Isomerism, Reaction mechanisms', theory: false, practice: false, mock: false },
-                { id: 'c7', name: 'S, P, D, F Block Elements', topics: 'Periodic trends, Anomalous properties, Coordination compounds', theory: false, practice: false, mock: false },
-                { id: 'c8', name: 'Liquid Solutions', topics: 'Raoult’s Law, Colligative properties, Vant Hoff factor (i)', theory: false, practice: false, mock: false },
-                { id: 'c9', name: 'Electrochemistry', topics: 'Nernst Equation, Faraday’s Laws, Kohlrausch’s Law', theory: false, practice: false, mock: false },
-                { id: 'c10', name: 'Chemical Kinetics', topics: 'Rate laws, First-order reactions, Arrhenius equation', theory: false, practice: false, mock: false },
-                { id: 'c11', name: 'Functional Groups', topics: 'Alcohols, Phenols, Ethers, Aldehydes, Ketones, Amines', theory: false, practice: false, mock: false },
-                { id: 'c12', name: 'Biomolecules & Polymers', topics: 'Carbohydrates, Proteins, DNA/RNA, Synthetic polymers', theory: false, practice: false, mock: false }
+            NEET: [
+                { q: "Which cell organelle is known as the powerhouse of the cell?", options: ["Nucleus", "Mitochondria", "Ribosome", "Golgi"], answer: 1, diff: "Easy", subj: "Biology" },
+                { q: "What is the phenotypic ratio of a standard Mendelian dihybrid cross?", options: ["9:3:3:1", "3:1", "1:2:1", "1:1:1:1"], answer: 0, diff: "Hard", subj: "Biology" },
+                { q: "The dimensional formula of Planck's constant is same as:", options: ["Force", "Energy", "Angular Momentum", "Power"], answer: 2, diff: "Easy", subj: "Physics" },
+                { q: "Which of these is a secondary active transport mechanism?", options: ["Na+/K+ Pump", "SGLT1 (Glucose-Na+ symporter)", "GLUT4", "Aquaporins"], answer: 1, diff: "Hard", subj: "Biology" }
             ],
-            Mathematics: [
-                { id: 'm1', name: 'Fundamentals & Logarithms', topics: 'Number systems, Inequalities, Modulus, loga(x) properties', theory: false, practice: false, mock: false },
-                { id: 'm2', name: 'Sets, Relations & Functions', topics: 'Types of relations, Domain/Range, Composite & Inverse functions', theory: false, practice: false, mock: false },
-                { id: 'm3', name: 'Trigonometric Ratios & ID', topics: 'Multiple/Sub-multiple angles, Conditional IDs, Max/Min values', theory: false, practice: false, mock: false },
-                { id: 'm4', name: 'Quadratic Equations', topics: 'Nature of roots, Location of roots (Advanced), Transformation', theory: false, practice: false, mock: false },
-                { id: 'm5', name: 'Sequence & Series', topics: 'AM-GM-HM Inequalities, AGP, Sigma notation', theory: false, practice: false, mock: false },
-                { id: 'm6', name: 'Permutations & Combinations', topics: 'Inclusion-Exclusion, Circular Permutations, Multinomial Theorem', theory: false, practice: false, mock: false },
-                { id: 'm7', name: 'Binomial Theorem', topics: 'General/Middle term, Binomial Coefficients, Series summation', theory: false, practice: false, mock: false },
-                { id: 'm8', name: 'Coordinate Geometry (2D)', topics: 'Straight Lines, Circles, Conic Sections (Parabola, Ellipse, Hyperbola)', theory: false, practice: false, mock: false },
-                { id: 'm9', name: 'Differential Calculus', topics: 'Limits, Continuity, Differentiability, Application of Derivatives', theory: false, practice: false, mock: false },
-                { id: 'm10', name: 'Integral Calculus', topics: 'Indefinite/Definite Integrals, Area under curve, Differential Eq', theory: false, practice: false, mock: false },
-                { id: 'm11', name: 'Vectors & 3D Geometry', topics: 'Scalar/Vector Triple Product, Shortest distance between lines', theory: false, practice: false, mock: false },
-                { id: 'm12', name: 'Probability & Statistics', topics: 'Bayes\' Theorem, Binomial Distribution, Variance/Mean', theory: false, practice: false, mock: false }
+            UPSC: [
+                { q: "Which Article of the Indian Constitution deals with Right to Equality?", options: ["Article 14-18", "Article 19-22", "Article 23-24", "Article 25-28"], answer: 0, diff: "Easy", subj: "Polity" },
+                { q: "Who was the founder of the Maurya Empire?", options: ["Ashoka", "Bindusara", "Chandragupta Maurya", "Bimbisara"], answer: 2, diff: "Easy", subj: "History" },
+                { q: "The term 'Hindu rate of growth' was coined by:", options: ["Amartya Sen", "Raj Krishna", "Manmohan Singh", "Raghuram Rajan"], answer: 1, diff: "Hard", subj: "Economy" },
+                { q: "Which of the following is NOT a feature of the Indian Constitution?", options: ["Federalism", "Parliamentary Government", "Presidential Government", "Independence of Judiciary"], answer: 2, diff: "Easy", subj: "Polity" }
             ]
         };
 
         const quotes = [
             "You don't drown by falling in the water; you drown by staying there. 🌊",
-            "Stop crying over Thermodynamics. It doesn't care about your feelings. 🥶",
-            "If Rotational Dynamics was easy, everyone would be at IIT Bombay. 🏰",
-            "Are you really tired, or is your ego just hurting because you got a negative score? 🤡 Get back to work.",
-            "Someday you'll look back at this struggle from your hostel room in an IIT. Make sure it's a good story. 📚"
+            "Stop crying over the syllabus. It doesn't care about your feelings. 🥶",
+            "Are you really tired, or is your ego just hurting? 🤡 Get back to work.",
+            "Someday you'll look back at this struggle. Make sure it's a good story. 📚",
+            "Discipline equals freedom. ⚔️"
         ];
 
         // --- 2. STATE MANAGEMENT ---
+        let currentExam = 'JEE'; // Default
+        let syllabusData = ALL_EXAMS_DATA[currentExam];
         let currentTab = 'Dashboard';
-        const tabs = ['Dashboard', 'Physics', 'Chemistry', 'Mathematics'];
+        let tabs = ['Dashboard', ...Object.keys(syllabusData)];
         let chartInstances = {}; 
+        let currentQuizQ = null;
 
-        // Initialize App
         function initApp() {
-            const savedState = localStorage.getItem('jeeAstraState');
+            // Check Daily Streak 🔥
+            updateStreak();
+
+            // Load preferred exam if exists
+            const savedExam = localStorage.getItem('astraCurrentExam');
+            if(savedExam && ALL_EXAMS_DATA[savedExam]) {
+                currentExam = savedExam;
+                document.getElementById('exam-selector').value = currentExam;
+            }
+            
+            updateAppDataPointer();
+
+            initVisualBackground(); 
+            renderNav();
+            renderContent();
+            initDraggableTimer();
+            updateUIForExam();
+        }
+
+        // --- FIRE STREAK LOGIC 🔥 ---
+        function updateStreak() {
+            let currentStreak = parseInt(localStorage.getItem('astraStreak')) || 0;
+            let lastLogin = localStorage.getItem('astraLastLogin');
+            let today = new Date().toDateString();
+            
+            if (lastLogin !== today) {
+                let yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                if (lastLogin === yesterday.toDateString()) {
+                    currentStreak++; // Consecutive day!
+                } else {
+                    currentStreak = 1; // Streak broken, restart
+                }
+                localStorage.setItem('astraStreak', currentStreak);
+                localStorage.setItem('astraLastLogin', today);
+            }
+            
+            document.getElementById('streak-counter').innerText = `${currentStreak} Day Streak`;
+            // Add mobile streak counter to nav too
+            const sm = document.getElementById('mobile-streak');
+            if(sm) sm.innerText = `🔥 ${currentStreak}`;
+        }
+
+        function switchExam() {
+            currentExam = document.getElementById('exam-selector').value;
+            localStorage.setItem('astraCurrentExam', currentExam);
+            
+            updateAppDataPointer();
+            
+            currentTab = 'Dashboard'; 
+            tabs = ['Dashboard', ...Object.keys(syllabusData)];
+            
+            updateUIForExam();
+            renderNav();
+            renderContent();
+        }
+
+        function updateAppDataPointer() {
+            syllabusData = ALL_EXAMS_DATA[currentExam];
+            const savedState = localStorage.getItem(`astraState_${currentExam}`);
             if(savedState) {
                 try {
                     const parsed = JSON.parse(savedState);
@@ -298,127 +440,67 @@
                             parsed[subj].forEach(savedChap => {
                                 const target = syllabusData[subj].find(c => c.id === savedChap.id);
                                 if(target) {
-                                    target.theory = savedChap.theory;
-                                    target.practice = savedChap.practice;
-                                    target.mock = savedChap.mock;
+                                    target.theory = savedChap.theory; target.practice = savedChap.practice; target.mock = savedChap.mock;
                                 }
                             });
                         }
                     }
                 } catch(e) { console.error("Could not load save state", e); }
             }
-            initVisualBackground(); // Fire up the Nebula! ✨
-            renderNav();
-            renderContent();
-            initDraggableTimer();
         }
-
-        // --- NEW FEATURE: DYNAMIC BACKGROUND VISUALS 🌌 ---
-        function initVisualBackground() {
-            const bgContainer = document.createElement('div');
-            bgContainer.innerHTML = `
-                <div class="bg-orb orb-1"></div>
-                <div class="bg-orb orb-2"></div>
-                <div class="bg-orb orb-3"></div>
-            `;
-            // Add 75 random twinkling stars!
-            for(let i=0; i<75; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const size = Math.random() * 3 + 1; // 1px to 4px
-                star.style.width = size + 'px';
-                star.style.height = size + 'px';
-                star.style.left = Math.random() * 100 + 'vw';
-                star.style.top = Math.random() * 100 + 'vh';
-                star.style.setProperty('--duration', (Math.random() * 3 + 1.5) + 's');
-                bgContainer.appendChild(star);
-            }
-            document.body.prepend(bgContainer);
-        }
-
-        // --- NEW FEATURE: WEB AUDIO API (DEEP SPACE HUM) 🎧 ---
-        let audioCtx;
-        let noiseNode;
-        let humFilter;
-        let isHumPlaying = false;
-
-        window.toggleAudioHum = function() {
-            const btn = document.getElementById('audio-btn');
-            
-            // First time setup!
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Create 2 seconds of pure random white noise
-                const bufferSize = 2 * audioCtx.sampleRate;
-                const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const output = noiseBuffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    output[i] = Math.random() * 2 - 1;
-                }
-
-                noiseNode = audioCtx.createBufferSource();
-                noiseNode.buffer = noiseBuffer;
-                noiseNode.loop = true;
-
-                // Magic: Lowpass filter turns harsh white noise into a deep, rumbling spaceship hum
-                humFilter = audioCtx.createBiquadFilter();
-                humFilter.type = "lowpass";
-                humFilter.frequency.value = 250; // Deep bass frequencies only
-
-                const gainNode = audioCtx.createGain();
-                gainNode.gain.value = 0.5; // Smooth volume
-
-                noiseNode.connect(humFilter);
-                humFilter.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                
-                noiseNode.start(0);
-                audioCtx.suspend(); // Start suspended so it doesn't blast immediately
-            }
-
-            if (isHumPlaying) {
-                audioCtx.suspend();
-                btn.innerHTML = '🎧 Deep Space Hum: OFF';
-                btn.classList.remove('text-neon-blue', 'border-neon-blue', 'shadow-[0_0_10px_rgba(56,189,248,0.3)]');
-            } else {
-                audioCtx.resume();
-                btn.innerHTML = '🔊 Deep Space Hum: ON';
-                btn.classList.add('text-neon-blue', 'border-neon-blue', 'shadow-[0_0_10px_rgba(56,189,248,0.3)]');
-            }
-            isHumPlaying = !isHumPlaying;
-        };
-
 
         function saveState() {
-            localStorage.setItem('jeeAstraState', JSON.stringify(syllabusData));
-            if(currentTab === 'Dashboard') {
-                renderContent(); 
+            localStorage.setItem(`astraState_${currentExam}`, JSON.stringify(syllabusData));
+            if(currentTab === 'Dashboard') renderContent(); 
+        }
+
+        // NUKE DATABASE (Reset Everything) ☢️
+        window.nukeDatabase = function() {
+            if(confirm("⚠️ ARE YOU SURE? This will wipe your progress for ALL exams entirely. This cannot be undone!")) {
+                localStorage.clear(); // Bye bye
+                ALL_EXAMS_DATA = getFreshData(); // Reset in memory
+                initApp(); // Re-init
+                alert("Database nuked. Back to square one, Private. 🫡");
+            }
+        }
+
+        function updateUIForExam() {
+            const titleEl = document.getElementById('app-title');
+            const emojiEl = document.getElementById('app-emoji');
+            const footerEl = document.getElementById('footer-text');
+            const rouletteEl = document.getElementById('rouletteTitle');
+            
+            if(currentExam === 'JEE') {
+                titleEl.innerText = "JEE Astra"; emojiEl.innerText = "🚀";
+                footerEl.innerText = "Stay Hard. IIT Bombay is waiting for you, boss! 🔥";
+                rouletteEl.innerText = "NTA Demands You Study:";
+            } else if(currentExam === 'NEET') {
+                titleEl.innerText = "NEET Astra"; emojiEl.innerText = "🩺";
+                footerEl.innerText = "Stay Hard. AIIMS Delhi is waiting for you, Doc! 💉";
+                rouletteEl.innerText = "NTA Demands You Study:";
+            } else if(currentExam === 'UPSC') {
+                titleEl.innerText = "UPSC Astra"; emojiEl.innerText = "🇮🇳";
+                footerEl.innerText = "Stay Hard. LBSNAA Mussoorie is waiting for you, Officer! 🦅";
+                rouletteEl.innerText = "UPSC Demands You Revise:";
             }
         }
 
         function calculateStats() {
             let stats = {
-                totalChapters: 0,
-                phases: { theory: 0, practice: 0, mock: 0 },
-                subjects: {
-                    Physics: { total: 0, score: 0 },
-                    Chemistry: { total: 0, score: 0 },
-                    Mathematics: { total: 0, score: 0 }
-                },
-                overallScore: 0
+                totalChapters: 0, phases: { theory: 0, practice: 0, mock: 0 },
+                subjects: {}, overallScore: 0
             };
+            
+            Object.keys(syllabusData).forEach(subj => stats.subjects[subj] = { total: 0, score: 0 });
 
             for (const subj in syllabusData) {
                 syllabusData[subj].forEach(ch => {
                     stats.totalChapters++;
                     stats.subjects[subj].total += 1;
-                    
                     let chapterScore = 0;
                     if (ch.theory) { stats.phases.theory++; chapterScore += 0.25; }
                     if (ch.practice) { stats.phases.practice++; chapterScore += 0.35; }
                     if (ch.mock) { stats.phases.mock++; chapterScore += 0.40; }
-                    
                     stats.subjects[subj].score += chapterScore;
                 });
                 stats.overallScore += stats.subjects[subj].score;
@@ -426,22 +508,25 @@
             return stats;
         }
 
-        // NEW: Get Title based on completion
         function getTitle(percentage) {
-            if (percentage < 10) return "Clueless Aspirant 🤡";
-            if (percentage < 30) return "Board Exam Warrior 🛡️";
-            if (percentage < 50) return "HC Verma's Disciple 📖";
-            if (percentage < 70) return "Mock Test Survivor ⚔️";
-            if (percentage < 90) return "IIT-B CSE Hopeful 💻";
-            return "Irodov's Nightmare 👹";
+            if(currentExam === 'UPSC') {
+                if (percentage < 10) return "Clueless Aspirant 🤡";
+                if (percentage < 30) return "Laxmikanth Reader 📖";
+                if (percentage < 50) return "Mains Writer ✍️";
+                if (percentage < 80) return "Interview Candidate 👔";
+                return "Future IAS Officer 🦅";
+            } else {
+                if (percentage < 10) return "Clueless Aspirant 🤡";
+                if (percentage < 30) return "Board Exam Warrior 🛡️";
+                if (percentage < 50) return "Coaching Module Solver 📖";
+                if (percentage < 70) return "Mock Test Survivor ⚔️";
+                if (percentage < 90) return "Top Tier Hopeful 💻";
+                return "The Examiner's Nightmare 👹";
+            }
         }
 
         // --- 3. NAVIGATION LOGIC ---
-        function setTab(tabName) {
-            currentTab = tabName;
-            renderNav();
-            renderContent();
-        }
+        function setTab(tabName) { currentTab = tabName; renderNav(); renderContent(); }
 
         function renderNav() {
             const navContainer = document.getElementById('nav-buttons');
@@ -455,11 +540,14 @@
                 if(tab === 'Physics') icon = '⚛️';
                 if(tab === 'Chemistry') icon = '🧪';
                 if(tab === 'Mathematics') icon = '📐';
+                if(tab === 'Biology') icon = '🧬';
+                if(tab === 'Polity') icon = '⚖️';
+                if(tab === 'History') icon = '📜';
+                if(tab === 'Geography') icon = '🌍';
+                if(tab === 'Economy') icon = '💰';
 
                 btn.className = `px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap flex items-center gap-2 ${
-                    isActive 
-                    ? 'bg-slate-800 text-white border border-slate-600 shadow-md neon-glow' 
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                    isActive ? 'bg-slate-800 text-white border border-slate-600 shadow-md neon-glow' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
                 }`;
                 btn.innerHTML = `<span>${icon}</span> ${tab === 'Dashboard' ? 'War Room' : tab}`;
                 btn.onclick = () => setTab(tab);
@@ -470,9 +558,7 @@
         // --- 4. CONTENT RENDERING ---
         function renderContent() {
             const contentArea = document.getElementById('app-content');
-            for (let id in chartInstances) {
-                if (chartInstances[id]) chartInstances[id].destroy();
-            }
+            for (let id in chartInstances) { if (chartInstances[id]) chartInstances[id].destroy(); }
             chartInstances = {};
 
             if (currentTab === 'Dashboard') {
@@ -491,92 +577,111 @@
             let sassMessage = "Get to work, you have a lot of ground to cover! 🏃‍♂️💨";
             if (percentComplete > 20) sassMessage = "Okay, you've started. Don't stop now, momentum is everything! 📈";
             if (percentComplete > 50) sassMessage = "Halfway there! The competition is sweating, but so are you. Push harder! 💦";
-            if (percentComplete > 80) sassMessage = "Absolute menace behavior. You are dangerously close to AIR 100. 😈🔥";
+            if (percentComplete > 80) sassMessage = "Absolute menace behavior. You are dangerously close to Rank 1. 😈🔥";
+
+            const numSubjects = Object.keys(stats.subjects).length;
+            const desktopGridClass = numSubjects === 4 ? 'md:grid-cols-4' : 'md:grid-cols-3';
+            const mobileGridClass = numSubjects === 4 ? 'grid-cols-2' : 'grid-cols-3';
+
+            let subjectChartsHTML = '';
+            const colors = ['#38bdf8', '#c084fc', '#f472b6', '#4ade80'];
+            let colorIdx = 0;
+            
+            Object.keys(stats.subjects).forEach(subj => {
+                const score = stats.subjects[subj].score;
+                const total = stats.subjects[subj].total;
+                const pct = Math.round((score / total) * 100) || 0;
+                const color = colors[colorIdx % colors.length];
+                
+                subjectChartsHTML += `
+                    <div class="flex flex-col items-center group tilt-card p-2 rounded-xl border border-transparent hover:border-slate-600 hover:bg-slate-800/50">
+                        <p class="text-[10px] sm:text-xs font-semibold text-slate-300 mb-2 transition-colors" style="group-hover:color:${color}">${subj}</p>
+                        <div class="w-full relative aspect-square flex items-center justify-center">
+                            <canvas id="chart_${subj}"></canvas>
+                        </div>
+                        <p class="text-xs mt-2 font-bold px-2 py-1 rounded-full bg-slate-900/50 border border-slate-700" style="color:${color}">${pct}%</p>
+                    </div>
+                `;
+                colorIdx++;
+            });
 
             return `
                 <div class="space-y-6 animate-fade-in">
-                    <!-- Intro Paragraph & NTA Roulette -->
+                    <!-- Intro, Roulette & Quizzes -->
                     <div class="glass-panel p-6 rounded-2xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div class="absolute top-0 right-0 p-4 opacity-5 text-6xl">🎯</div>
                         <div class="flex-1">
                             <h2 class="text-2xl font-bold text-white mb-2">Welcome to the War Room 🎯</h2>
                             <p class="text-slate-400 text-sm leading-relaxed mb-4">
                                 Current Status: <span class="text-neon-pink font-bold">${title}</span>. 
-                                The tracking logic utilizes the <strong>AIR 100 Secret Sauce</strong>. Balance Theory, Practice, and Mocks.
+                                Balance Theory (📖), Practice (✍️), and Mocks (🎯).
                             </p>
                             <div class="bg-slate-900/80 border-l-4 border-yellow-500 p-3 rounded text-sm text-slate-300 italic">
-                                <span class="text-yellow-500 font-bold">Consultant says:</span> ${sassMessage}
+                                <span class="text-yellow-500 font-bold">Coach says:</span> ${sassMessage}
                             </div>
                         </div>
                         
-                        <!-- NEW: Interactive Roulette Button -->
-                        <div class="md:min-w-[200px]">
-                            <button onclick="playNTARoulette()" class="w-full bg-gradient-to-r from-neon-purple to-neon-blue hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-[0_0_20px_rgba(192,132,252,0.4)] transition-transform transform hover:scale-105 flex items-center justify-center gap-2">
-                                <span>🎲</span> NTA Roulette
+                        <div class="md:min-w-[220px] flex flex-col gap-2">
+                            <!-- Existing Roulette -->
+                            <button onclick="playNTARoulette()" class="w-full bg-slate-800 border border-slate-600 hover:bg-slate-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition-transform transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                                <span>🎲</span> Mission Roulette
                             </button>
-                            <p class="text-[10px] text-center text-slate-500 mt-2">Don't know what to study? Click me.</p>
+                            
+                            <!-- Interrogation Button -->
+                            <button onclick="openQuizModal()" class="w-full bg-gradient-to-r from-neon-blue to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-[0_0_15px_rgba(56,189,248,0.4)] transition-transform transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                                <span>🧠</span> Test Your Might
+                            </button>
+                            <p class="text-[9px] text-center text-slate-500 mt-1 uppercase tracking-widest">Random Difficulty</p>
                         </div>
                     </div>
 
-                    <!-- Top Metric Cards -->
+                    <!-- Top Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="glass-panel p-6 rounded-2xl border-l-4 border-neon-blue flex items-center justify-between group hover:bg-slate-800 transition-colors">
+                        <div class="glass-panel p-6 rounded-2xl border-l-4 border-neon-blue flex items-center justify-between tilt-card cursor-default">
                             <div>
                                 <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-1">True Completion</p>
-                                <h3 class="text-4xl font-extrabold text-white group-hover:scale-105 transition-transform origin-left">${percentComplete}<span class="text-xl text-slate-500">%</span></h3>
+                                <h3 class="text-4xl font-extrabold text-white">${percentComplete}<span class="text-xl text-slate-500">%</span></h3>
                             </div>
                             <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(56,189,248,0.2)]">🏆</div>
                         </div>
-                        <div class="glass-panel p-6 rounded-2xl border-l-4 border-neon-purple flex items-center justify-between group hover:bg-slate-800 transition-colors">
+                        <div class="glass-panel p-6 rounded-2xl border-l-4 border-neon-purple flex items-center justify-between tilt-card cursor-default">
                             <div>
-                                <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-1">Chapters Mastered</p>
+                                <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-1">Topics Mastered</p>
                                 <p class="text-xs text-slate-500 mb-2">(Completed all 3 phases)</p>
-                                <h3 class="text-3xl font-bold text-white group-hover:scale-105 transition-transform origin-left">${Math.floor(stats.overallScore)} <span class="text-lg text-slate-500">/ ${stats.totalChapters}</span></h3>
+                                <h3 class="text-3xl font-bold text-white">${Math.floor(stats.overallScore)} <span class="text-lg text-slate-500">/ ${stats.totalChapters}</span></h3>
                             </div>
                             <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(192,132,252,0.2)]">🔥</div>
                         </div>
                     </div>
 
+                    <!-- Progress XP Bar -->
+                    <div class="glass-panel p-4 rounded-xl">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Global XP Tracker</span>
+                            <span class="text-xs text-white font-bold">${percentComplete}%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden shadow-inner border border-slate-700">
+                            <div class="bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink h-2 rounded-full transition-all duration-1000 ease-out" style="width: ${percentComplete}%"></div>
+                        </div>
+                    </div>
+
                     <!-- Charts Grid -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Phase Breakdown Chart -->
-                        <div class="glass-panel p-6 rounded-2xl flex flex-col">
+                        <!-- Phase Breakdown -->
+                        <div class="glass-panel p-6 rounded-2xl flex flex-col tilt-card">
                             <h3 class="text-lg font-bold text-white mb-1">The Execution Pipeline</h3>
-                            <p class="text-xs text-slate-400 mb-6">Are you stuck reading theory without practicing? Compare your phases here.</p>
+                            <p class="text-[10px] sm:text-xs text-slate-400 mb-6">Are you stuck reading theory without practicing? Compare your phases here.</p>
                             <div class="flex-grow flex items-center justify-center w-full">
-                                <div class="chart-container">
-                                    <canvas id="phaseChart"></canvas>
-                                </div>
+                                <div class="chart-container"><canvas id="phaseChart"></canvas></div>
                             </div>
                         </div>
 
-                        <!-- Subject Mastery Charts -->
+                        <!-- Subject Mastery -->
                         <div class="glass-panel p-6 rounded-2xl flex flex-col">
                             <h3 class="text-lg font-bold text-white mb-1">Subject Mastery Matrix</h3>
-                            <p class="text-xs text-slate-400 mb-6">Weighted progress by subject. Balance is key for a top rank.</p>
-                            
-                            <div class="grid grid-cols-3 gap-2 sm:gap-4 flex-grow items-center">
-                                <div class="flex flex-col items-center group">
-                                    <p class="text-xs font-semibold text-slate-300 mb-2 group-hover:text-neon-blue transition-colors">Physics</p>
-                                    <div class="w-full relative aspect-square flex items-center justify-center">
-                                        <canvas id="physChart"></canvas>
-                                    </div>
-                                    <p class="text-xs text-neon-blue mt-2 font-bold bg-blue-900/30 px-2 py-1 rounded-full">${Math.round((stats.subjects.Physics.score / stats.subjects.Physics.total) * 100) || 0}%</p>
-                                </div>
-                                <div class="flex flex-col items-center group">
-                                    <p class="text-xs font-semibold text-slate-300 mb-2 group-hover:text-neon-purple transition-colors">Chemistry</p>
-                                    <div class="w-full relative aspect-square flex items-center justify-center">
-                                        <canvas id="chemChart"></canvas>
-                                    </div>
-                                    <p class="text-xs text-neon-purple mt-2 font-bold bg-purple-900/30 px-2 py-1 rounded-full">${Math.round((stats.subjects.Chemistry.score / stats.subjects.Chemistry.total) * 100) || 0}%</p>
-                                </div>
-                                <div class="flex flex-col items-center group">
-                                    <p class="text-xs font-semibold text-slate-300 mb-2 group-hover:text-neon-pink transition-colors">Math</p>
-                                    <div class="w-full relative aspect-square flex items-center justify-center">
-                                        <canvas id="mathChart"></canvas>
-                                    </div>
-                                    <p class="text-xs text-neon-pink mt-2 font-bold bg-pink-900/30 px-2 py-1 rounded-full">${Math.round((stats.subjects.Mathematics.score / stats.subjects.Mathematics.total) * 100) || 0}%</p>
-                                </div>
+                            <p class="text-[10px] sm:text-xs text-slate-400 mb-6">Weighted progress by subject. Balance is key for a top rank.</p>
+                            <div class="grid ${mobileGridClass} ${desktopGridClass} gap-2 flex-grow items-center">
+                                ${subjectChartsHTML}
                             </div>
                         </div>
                     </div>
@@ -586,88 +691,75 @@
 
         function initDashboardCharts() {
             const stats = calculateStats();
-            Chart.defaults.color = '#94a3b8';
-            Chart.defaults.font.family = 'Inter, sans-serif';
+            Chart.defaults.color = '#94a3b8'; Chart.defaults.font.family = 'Inter, sans-serif';
 
-            // Phase Bar Chart
+            // Bar Chart
             const ctxPhase = document.getElementById('phaseChart').getContext('2d');
             chartInstances['phase'] = new Chart(ctxPhase, {
                 type: 'bar',
                 data: {
                     labels: ['Theory 📖', 'Practice ✍️', 'Mocks 🎯'],
                     datasets: [{
-                        label: 'Chapters Completed',
+                        label: 'Completed',
                         data: [stats.phases.theory, stats.phases.practice, stats.phases.mock],
-                        backgroundColor: [
-                            'rgba(56, 189, 248, 0.6)', 
-                            'rgba(192, 132, 252, 0.6)', 
-                            'rgba(244, 114, 182, 0.6)'  
-                        ],
+                        backgroundColor: ['rgba(56, 189, 248, 0.6)', 'rgba(192, 132, 252, 0.6)', 'rgba(244, 114, 182, 0.6)'],
                         borderColor: ['#38bdf8', '#c084fc', '#f472b6'],
-                        borderWidth: 1,
-                        borderRadius: 6,
+                        borderWidth: 1, borderRadius: 6,
                         hoverBackgroundColor: ['rgba(56, 189, 248, 0.9)', 'rgba(192, 132, 252, 0.9)', 'rgba(244, 114, 182, 0.9)']
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleColor: '#fff', bodyColor: '#cbd5e1', borderColor: 'rgba(71, 85, 105, 0.5)', borderWidth: 1, callbacks: { label: (ctx) => ` ${ctx.raw} out of ${stats.totalChapters} chapters` } }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, max: stats.totalChapters, grid: { color: 'rgba(51, 65, 85, 0.3)', borderDash: [5, 5] }, ticks: { stepSize: 5 } },
-                        x: { grid: { display: false } }
-                    },
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: stats.totalChapters, grid: { color: 'rgba(51, 65, 85, 0.3)' } }, x: { grid: { display: false } } },
                     animation: { y: { duration: 1500, easing: 'easeOutElastic' } }
                 }
             });
 
-            // Donut Helper
-            const createDonut = (id, score, total, colorHex) => {
-                const ctx = document.getElementById(id).getContext('2d');
-                chartInstances[id] = new Chart(ctx, {
+            // Subject Donuts
+            const colors = ['#38bdf8', '#c084fc', '#f472b6', '#4ade80'];
+            let colorIdx = 0;
+            Object.keys(stats.subjects).forEach(subj => {
+                const ctx = document.getElementById(`chart_${subj}`).getContext('2d');
+                const score = stats.subjects[subj].score;
+                const total = stats.subjects[subj].total;
+                
+                chartInstances[`chart_${subj}`] = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
                         labels: ['Mastered', 'Remaining'],
                         datasets: [{
                             data: [score, total - score],
-                            backgroundColor: [colorHex, 'rgba(30, 41, 59, 1)'],
-                            borderColor: 'rgba(15, 23, 42, 1)', borderWidth: 2, cutout: '75%', hoverOffset: 4
+                            backgroundColor: [colors[colorIdx % colors.length], 'rgba(30, 41, 59, 1)'],
+                            borderColor: 'rgba(15, 23, 42, 1)', borderWidth: 2, cutout: '70%', hoverOffset: 4
                         }]
                     },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { enabled: true, backgroundColor: 'rgba(15, 23, 42, 0.9)', callbacks: { label: function(context) { return Math.round(context.parsed * 10) / 10; } } }
-                        },
-                        animation: { animateRotate: true, animateScale: true }
-                    }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: true } }, animation: { animateRotate: true, animateScale: true } }
                 });
-            };
-
-            createDonut('physChart', stats.subjects.Physics.score, stats.subjects.Physics.total, '#38bdf8');
-            createDonut('chemChart', stats.subjects.Chemistry.score, stats.subjects.Chemistry.total, '#c084fc');
-            createDonut('mathChart', stats.subjects.Mathematics.score, stats.subjects.Mathematics.total, '#f472b6');
+                colorIdx++;
+            });
         }
 
-        // Generate Subject Specific HTML Tracker
         function generateSubjectHTML(subject) {
             const data = syllabusData[subject];
-            let accentColorClass = 'text-neon-blue';
-            let borderAccentClass = 'border-neon-blue';
-            if (subject === 'Chemistry') { accentColorClass = 'text-neon-purple'; borderAccentClass = 'border-neon-purple'; }
-            if (subject === 'Mathematics') { accentColorClass = 'text-neon-pink'; borderAccentClass = 'border-neon-pink'; }
+            
+            // Dynamic colors based on subject position
+            const colorClasses = [
+                {text: 'text-neon-blue', border: 'border-neon-blue', bg: 'bg-neon-blue/20'},
+                {text: 'text-neon-purple', border: 'border-neon-purple', bg: 'bg-neon-purple/20'},
+                {text: 'text-neon-pink', border: 'border-neon-pink', bg: 'bg-neon-pink/20'},
+                {text: 'text-neon-green', border: 'border-neon-green', bg: 'bg-neon-green/20'},
+                {text: 'text-neon-orange', border: 'border-neon-orange', bg: 'bg-neon-orange/20'}
+            ];
+            const subjIndex = Object.keys(syllabusData).indexOf(subject);
+            const accent = colorClasses[subjIndex % colorClasses.length];
 
             let html = `
                 <div class="space-y-6 animate-fade-in">
-                    <!-- Intro Paragraph -->
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 ${borderAccentClass} relative overflow-hidden">
-                        <div class="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-${borderAccentClass.replace('border-','')} to-transparent opacity-10 pointer-events-none"></div>
-                        <h2 class="text-2xl font-bold text-white mb-2">Subject Tracker: <span class="${accentColorClass}">${subject}</span></h2>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 ${accent.border} relative overflow-hidden">
+                        <div class="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-${accent.border.replace('border-','')} to-transparent opacity-10 pointer-events-none"></div>
+                        <h2 class="text-2xl font-bold text-white mb-2">Subject Tracker: <span class="${accent.text}">${subject}</span></h2>
                         <p class="text-slate-400 text-sm leading-relaxed">
-                            Granular tracking for all core topics. <strong>Rules of engagement:</strong> Do not mark <span class="text-slate-200">Practice</span> until you've solved at least 50 standard questions. Do not mark <span class="text-slate-200">Mocks/PYQs</span> until you've tested yourself under a time constraint. Honesty here reflects directly on your final rank. No cheating yourself! 😤
+                            Granular tracking for all core topics. <strong>Rules:</strong> Do not mark <span class="text-slate-200">Practice</span> until you've solved 50+ standard questions (or written 2 Mains answers for UPSC). Do not mark <span class="text-slate-200">Mocks</span> until tested under time constraint. Honesty reflects rank! 😤
                         </p>
                     </div>
                     
@@ -676,152 +768,186 @@
 
             data.forEach((chap, index) => {
                 const isFullyMastered = chap.theory && chap.practice && chap.mock;
-                
                 html += `
-                    <div id="card-${chap.id}" class="bg-slate-800/60 border ${isFullyMastered ? `border-${borderAccentClass.replace('border-','')} shadow-[0_0_15px_rgba(0,0,0,0.5)]` : 'border-slate-700/50'} rounded-xl p-5 hover:border-slate-500 transition-all duration-300 flex flex-col justify-between group transform hover:-translate-y-1 relative overflow-hidden">
-                        
-                        ${isFullyMastered ? `<div class="absolute top-0 right-0 w-8 h-8 flex items-center justify-center bg-${borderAccentClass.replace('border-','')}/20 rounded-bl-xl text-xs" title="Mastered!">👑</div>` : ''}
+                    <div class="bg-slate-800/60 border ${isFullyMastered ? `border-${accent.border.replace('border-','')} shadow-[0_0_15px_rgba(0,0,0,0.5)]` : 'border-slate-700/50'} rounded-xl p-5 hover:bg-slate-800 transition-all duration-300 flex flex-col justify-between tilt-card relative overflow-hidden group">
+                        ${isFullyMastered ? `<div class="absolute top-0 right-0 w-8 h-8 flex items-center justify-center ${accent.bg} rounded-bl-xl text-xs" title="Mastered!">👑</div>` : ''}
 
                         <div class="mb-4">
                             <div class="flex justify-between items-start mb-2">
-                                <h4 class="text-base font-bold text-white leading-tight group-hover:${accentColorClass} transition-colors"><span class="text-slate-500 mr-1 opacity-50">#${index+1}</span> ${chap.name}</h4>
+                                <h4 class="text-base font-bold text-white leading-tight group-hover:${accent.text} transition-colors"><span class="text-slate-500 mr-1 opacity-50">#${index+1}</span> ${chap.name}</h4>
                             </div>
-                            <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed" title="${chap.topics}">
-                                ${chap.topics}
-                            </p>
+                            <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed" title="${chap.topics}">${chap.topics}</p>
                         </div>
                         
                         <div class="flex items-center justify-between bg-slate-900/80 p-1.5 rounded-lg border border-slate-800/80 mt-auto">
-                            <button onclick="togglePhase('${subject}', '${chap.id}', 'theory', event)" 
-                                class="phase-btn flex flex-col items-center justify-center w-[32%] py-2 rounded-md border border-slate-700 text-slate-500 hover:text-slate-300 ${chap.theory ? 'active-theory bg-opacity-30' : ''}">
-                                <span class="text-sm mb-0.5">📖</span>
-                                <span class="text-[9px] font-bold uppercase tracking-wider">Theory</span>
+                            <button onclick="togglePhase('${subject}', '${chap.id}', 'theory', event)" class="phase-btn flex flex-col items-center justify-center w-[32%] py-2 rounded-md border border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-500 ${chap.theory ? 'active-theory bg-opacity-30' : ''}">
+                                <span class="text-sm mb-0.5">📖</span><span class="text-[9px] font-bold uppercase tracking-wider">Theory</span>
                             </button>
-                            
-                            <button onclick="togglePhase('${subject}', '${chap.id}', 'practice', event)" 
-                                class="phase-btn flex flex-col items-center justify-center w-[32%] py-2 rounded-md border border-slate-700 text-slate-500 hover:text-slate-300 ${chap.practice ? 'active-practice bg-opacity-30' : ''}">
-                                <span class="text-sm mb-0.5">✍️</span>
-                                <span class="text-[9px] font-bold uppercase tracking-wider">Prac</span>
+                            <button onclick="togglePhase('${subject}', '${chap.id}', 'practice', event)" class="phase-btn flex flex-col items-center justify-center w-[32%] py-2 rounded-md border border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-500 ${chap.practice ? 'active-practice bg-opacity-30' : ''}">
+                                <span class="text-sm mb-0.5">✍️</span><span class="text-[9px] font-bold uppercase tracking-wider">Prac</span>
                             </button>
-                            
-                            <button onclick="togglePhase('${subject}', '${chap.id}', 'mock', event)" 
-                                class="phase-btn flex flex-col items-center justify-center w-[32%] py-2 rounded-md border border-slate-700 text-slate-500 hover:text-slate-300 ${chap.mock ? 'active-mock bg-opacity-30' : ''}">
-                                <span class="text-sm mb-0.5">🎯</span>
-                                <span class="text-[9px] font-bold uppercase tracking-wider">Mock</span>
+                            <button onclick="togglePhase('${subject}', '${chap.id}', 'mock', event)" class="phase-btn flex flex-col items-center justify-center w-[32%] py-2 rounded-md border border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-500 ${chap.mock ? 'active-mock bg-opacity-30' : ''}">
+                                <span class="text-sm mb-0.5">🎯</span><span class="text-[9px] font-bold uppercase tracking-wider">Mock</span>
                             </button>
                         </div>
                     </div>
                 `;
             });
 
-            html += `
-                    </div>
-                </div>
-            `;
+            html += `</div></div>`;
             return html;
         }
 
-        // NEW: Interactive Toggle Phase with Confetti!
         window.togglePhase = function(subject, chapterId, phase, event) {
             const chapter = syllabusData[subject].find(c => c.id === chapterId);
             if(chapter) {
                 const wasMastered = chapter.theory && chapter.practice && chapter.mock;
-                
                 chapter[phase] = !chapter[phase];
                 saveState();
                 
                 const isMasteredNow = chapter.theory && chapter.practice && chapter.mock;
 
-                // 🎉 CONFETTI LOGIC! Bulletproof mouse coordinates
+                // 🎉 Confetti
                 if (!wasMastered && isMasteredNow && event) {
-                    const x = event.clientX / window.innerWidth;
-                    const y = event.clientY / window.innerHeight;
-                    
-                    confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { x: x, y: y },
-                        colors: ['#38bdf8', '#c084fc', '#f472b6']
-                    });
+                    let clientX = event.clientX; let clientY = event.clientY;
+                    if (event.touches && event.touches.length > 0) { clientX = event.touches[0].clientX; clientY = event.touches[0].clientY; }
+                    const x = clientX / window.innerWidth; const y = clientY / window.innerHeight;
+                    confetti({ particleCount: 120, spread: 80, origin: { x: x, y: y }, colors: ['#38bdf8', '#c084fc', '#f472b6', '#fb923c'] });
                 }
-                
-                // Re-render subject 
                 const contentArea = document.getElementById('app-content');
                 contentArea.innerHTML = generateSubjectHTML(subject);
             }
         };
 
-        // --- NEW FEATURE: NTA ROULETTE ---
-        window.playNTARoulette = function() {
-            let unfinished = [];
-            for(let subj in syllabusData) {
-                syllabusData[subj].forEach(ch => {
-                    if(!ch.theory || !ch.practice || !ch.mock) {
-                        unfinished.push({subject: subj, chapter: ch.name});
-                    }
-                });
-            }
-
-            const modal = document.getElementById('rouletteModal');
-            const subjEl = document.getElementById('rouletteSubject');
-            const chapEl = document.getElementById('rouletteChapter');
-
-            if(unfinished.length === 0) {
-                subjEl.innerText = "Wow.";
-                chapEl.innerText = "You finished everything. Go sleep.";
-            } else {
-                // Pick a random chapter
-                const randomChoice = unfinished[Math.floor(Math.random() * unfinished.length)];
-                subjEl.innerText = randomChoice.subject;
-                chapEl.innerText = randomChoice.chapter;
-            }
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+        // --- NEW FEATURE: DYNAMIC QUIZZES 🧠 ---
+        window.openQuizModal = function() {
+            const questions = QUIZ_DB[currentExam] || QUIZ_DB['JEE'];
+            currentQuizQ = questions[Math.floor(Math.random() * questions.length)];
+            
+            document.getElementById('quizSubject').innerText = currentQuizQ.subj;
+            document.getElementById('quizQuestion').innerText = currentQuizQ.q;
+            
+            const badge = document.getElementById('quizBadge');
+            badge.innerText = currentQuizQ.diff;
+            badge.className = currentQuizQ.diff === 'Hard' ? 'px-2 py-1 text-[10px] font-bold uppercase rounded-md border bg-red-500/20 text-red-400 border-red-500' : 'px-2 py-1 text-[10px] font-bold uppercase rounded-md border bg-green-500/20 text-green-400 border-green-500';
+            
+            const optsContainer = document.getElementById('quizOptions');
+            optsContainer.innerHTML = '';
+            
+            currentQuizQ.options.forEach((opt, idx) => {
+                optsContainer.innerHTML += `
+                    <button onclick="submitQuiz(${idx})" id="qOpt${idx}" class="w-full text-left font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-600 p-4 rounded-xl transition-all shadow-sm focus:outline-none">
+                        <span class="mr-2 opacity-50">${String.fromCharCode(65 + idx)}.</span> ${opt}
+                    </button>
+                `;
+            });
+            
+            document.getElementById('quizFeedback').innerHTML = '';
+            document.getElementById('quizNextBtn').classList.add('hidden');
+            
+            const modal = document.getElementById('quizModal');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modal.classList.add('opacity-100');
-                document.getElementById('rouletteContent').classList.remove('scale-95');
-                document.getElementById('rouletteContent').classList.add('scale-100');
+                modal.classList.remove('opacity-0'); modal.classList.add('opacity-100');
+                document.getElementById('quizContent').classList.remove('scale-95'); document.getElementById('quizContent').classList.add('scale-100');
             }, 10);
         };
 
-        window.closeRouletteModal = function() {
-            const modal = document.getElementById('rouletteModal');
-            modal.classList.remove('opacity-100');
-            modal.classList.add('opacity-0');
-            document.getElementById('rouletteContent').classList.remove('scale-100');
-            document.getElementById('rouletteContent').classList.add('scale-95');
+        window.submitQuiz = function(selectedIdx) {
+            const correctIdx = currentQuizQ.answer;
+            const feedback = document.getElementById('quizFeedback');
+            
+            for(let i=0; i<currentQuizQ.options.length; i++) {
+                let btn = document.getElementById(`qOpt${i}`);
+                btn.disabled = true; btn.classList.remove('hover:bg-slate-700');
+                if (i === correctIdx) { btn.classList.replace('bg-slate-800', 'bg-green-600/80'); btn.classList.replace('border-slate-600', 'border-green-400'); btn.classList.replace('text-slate-300', 'text-white'); } 
+                else if (i === selectedIdx && selectedIdx !== correctIdx) { btn.classList.replace('bg-slate-800', 'bg-red-600/80'); btn.classList.replace('border-slate-600', 'border-red-400'); btn.classList.replace('text-slate-300', 'text-white'); } 
+                else { btn.classList.add('opacity-50'); }
+            }
+            
+            if(selectedIdx === correctIdx) {
+                feedback.innerHTML = '<span class="text-green-400 text-lg">✅ Let\'s GO! The examiner is crying.</span>';
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 }, zIndex: 1000 });
+            } else {
+                feedback.innerHTML = '<span class="text-red-400 text-lg">🤡 Bruh... Time to revise some theory.</span>';
+            }
+            
+            document.getElementById('quizNextBtn').classList.remove('hidden');
+        };
+
+        window.closeQuizModal = function() {
+            const modal = document.getElementById('quizModal');
+            modal.classList.remove('opacity-100'); modal.classList.add('opacity-0');
+            document.getElementById('quizContent').classList.remove('scale-100'); document.getElementById('quizContent').classList.add('scale-95');
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         };
 
-        // --- NEW FEATURE: POMODORO TIMER ---
-        let timerInterval;
-        let timeLeft = 25 * 60; // 25 mins
-        let isTimerRunning = false;
-        let isGrindMode = true; // true = 25m, false = 5m
+        // --- NTA ROULETTE ---
+        window.playNTARoulette = function() {
+            let unfinished = [];
+            for(let subj in syllabusData) {
+                syllabusData[subj].forEach(ch => { if(!ch.theory || !ch.practice || !ch.mock) unfinished.push({subject: subj, chapter: ch.name}); });
+            }
+
+            const modal = document.getElementById('rouletteModal');
+            if(unfinished.length === 0) {
+                document.getElementById('rouletteSubject').innerText = "Wow."; document.getElementById('rouletteChapter').innerText = "You finished everything. Go sleep.";
+            } else {
+                const randomChoice = unfinished[Math.floor(Math.random() * unfinished.length)];
+                document.getElementById('rouletteSubject').innerText = randomChoice.subject; document.getElementById('rouletteChapter').innerText = randomChoice.chapter;
+            }
+
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0'); modal.classList.add('opacity-100');
+                document.getElementById('rouletteContent').classList.remove('scale-95'); document.getElementById('rouletteContent').classList.add('scale-100');
+            }, 10);
+        };
+        window.closeRouletteModal = function() {
+            const modal = document.getElementById('rouletteModal');
+            modal.classList.remove('opacity-100'); modal.classList.add('opacity-0');
+            document.getElementById('rouletteContent').classList.remove('scale-100'); document.getElementById('rouletteContent').classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        };
+
+        // --- ENHANCED POMODORO TIMER ---
+        let timerInterval; let baseTime = 25 * 60; let timeLeft = baseTime; let isTimerRunning = false; let isGrindMode = true; 
+
+        function updateTimerLength() {
+            if(isTimerRunning) return alert("Pause timer to change length!");
+            const sel = document.getElementById('pomodoro-settings').value;
+            baseTime = parseInt(sel) * 60;
+            if(isGrindMode) timeLeft = baseTime;
+            updateTimerDisplay();
+        }
 
         function updateTimerDisplay() {
-            const mins = Math.floor(timeLeft / 60);
-            const secs = timeLeft % 60;
+            const mins = Math.floor(timeLeft / 60); const secs = timeLeft % 60;
             document.getElementById('timer-display').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function playAlarm() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                osc.type = 'square'; osc.frequency.setValueAtTime(800, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.5, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.5);
+            } catch(e) {}
         }
 
         window.toggleTimer = function() {
             const btn = document.getElementById('timer-btn');
             if(isTimerRunning) {
                 clearInterval(timerInterval);
-                btn.innerHTML = '▶️ Start';
-                btn.classList.replace('bg-red-600', 'bg-slate-700');
+                btn.innerHTML = '▶️ Start'; btn.classList.replace('bg-red-600', 'bg-slate-700'); btn.classList.replace('text-white', 'text-slate-200');
             } else {
-                btn.innerHTML = '⏸️ Pause';
-                btn.classList.replace('bg-slate-700', 'bg-red-600');
+                btn.innerHTML = '⏸️ Pause'; btn.classList.replace('bg-slate-700', 'bg-red-600'); btn.classList.replace('text-slate-200', 'text-white');
                 timerInterval = setInterval(() => {
-                    timeLeft--;
-                    updateTimerDisplay();
+                    timeLeft--; updateTimerDisplay();
                     if(timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        alert(isGrindMode ? "Grind over! Take a 5 min break." : "Break over! Back to the mines.");
+                        clearInterval(timerInterval); playAlarm();
+                        alert(isGrindMode ? "Grind over! Take a break." : "Break over! Back to the mines.");
                         switchTimerMode();
                     }
                 }, 1000);
@@ -830,88 +956,128 @@
         };
 
         window.switchTimerMode = function() {
-            if(isTimerRunning) toggleTimer(); // Pause it first
-            isGrindMode = !isGrindMode;
-            timeLeft = isGrindMode ? 25 * 60 : 5 * 60;
-            
-            const modeEl = document.getElementById('timer-mode');
-            const displayEl = document.getElementById('timer-display');
-            
-            if(isGrindMode) {
-                modeEl.innerText = "Grind Phase 🧠";
-                displayEl.className = "text-3xl font-mono font-extrabold text-neon-blue";
-            } else {
-                modeEl.innerText = "Cry Phase (Break) 😭";
-                displayEl.className = "text-3xl font-mono font-extrabold text-neon-pink";
-            }
+            if(isTimerRunning) toggleTimer(); 
+            isGrindMode = !isGrindMode; timeLeft = isGrindMode ? baseTime : 5 * 60;
+            const modeEl = document.getElementById('timer-mode'); const displayEl = document.getElementById('timer-display');
+            if(isGrindMode) { modeEl.innerText = "Grind Phase 🧠"; displayEl.className = "text-4xl font-mono font-extrabold text-neon-blue drop-shadow-[0_0_8px_rgba(56,189,248,0.5)]"; } 
+            else { modeEl.innerText = "Cry Phase (Break) 😭"; displayEl.className = "text-4xl font-mono font-extrabold text-neon-pink drop-shadow-[0_0_8px_rgba(244,114,182,0.5)]"; }
             updateTimerDisplay();
         };
 
-        // Make timer draggable (Now with Mobile Touch Support!) 📱
+        // --- ENHANCED AUDIO HUB (SYNTHESIS) 🎧 ---
+        let audioCtx, currentNodes = []; let isAudioPlaying = false;
+        function stopCurrentAudio() { currentNodes.forEach(node => { try{node.stop()}catch(e){} try{node.disconnect()}catch(e){} }); currentNodes = []; }
+        window.changeAudioType = function() { if(isAudioPlaying) { audioCtx.suspend(); stopCurrentAudio(); startSynth(); audioCtx.resume(); } }
+
+        function startSynth() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const type = document.getElementById('audio-type').value;
+            
+            if(type === 'space') {
+                const bufferSize = 2 * audioCtx.sampleRate; const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const output = noiseBuffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+                const noise = audioCtx.createBufferSource(); noise.buffer = noiseBuffer; noise.loop = true;
+                const filter = audioCtx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 200;
+                const gain = audioCtx.createGain(); gain.gain.value = 0.8;
+                noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+                noise.start(0); currentNodes.push(noise, filter, gain);
+            } 
+            else if(type === 'rain') {
+                const bufferSize = 2 * audioCtx.sampleRate; const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const output = noiseBuffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+                const noise = audioCtx.createBufferSource(); noise.buffer = noiseBuffer; noise.loop = true;
+                const filter = audioCtx.createBiquadFilter(); filter.type = "bandpass"; filter.frequency.value = 1000; filter.Q.value = 0.5;
+                const gain = audioCtx.createGain(); gain.gain.value = 0.3;
+                noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+                noise.start(0); currentNodes.push(noise, filter, gain);
+            }
+            else if (type === 'binaural') {
+                const osc1 = audioCtx.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = 200; 
+                const osc2 = audioCtx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = 210; 
+                const merger = audioCtx.createChannelMerger(2);
+                osc1.connect(merger, 0, 0); osc2.connect(merger, 0, 1);
+                const gain = audioCtx.createGain(); gain.gain.value = 0.15; 
+                merger.connect(gain); gain.connect(audioCtx.destination);
+                osc1.start(); osc2.start(); currentNodes.push(osc1, osc2, merger, gain);
+            }
+        }
+
+        window.toggleAudioHub = function() {
+            const btn = document.getElementById('audio-btn');
+            if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); startSynth(); audioCtx.suspend(); }
+
+            if (isAudioPlaying) {
+                audioCtx.suspend(); btn.innerHTML = '🎧 Audio: OFF'; btn.classList.remove('text-neon-blue', 'border-neon-blue', 'shadow-[0_0_10px_rgba(56,189,248,0.3)]');
+            } else {
+                if(currentNodes.length === 0) startSynth(); 
+                audioCtx.resume(); btn.innerHTML = '🔊 Audio: ON'; btn.classList.add('text-neon-blue', 'border-neon-blue', 'shadow-[0_0_10px_rgba(56,189,248,0.3)]');
+            }
+            isAudioPlaying = !isAudioPlaying;
+        };
+
+        function initVisualBackground() {
+            if(document.querySelector('.bg-orb')) return; 
+            const bgContainer = document.createElement('div');
+            bgContainer.innerHTML = `<div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div><div class="bg-orb orb-3"></div>`;
+            for(let i=0; i<75; i++) {
+                const star = document.createElement('div'); star.className = 'star';
+                const size = Math.random() * 3 + 1; star.style.width = size + 'px'; star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + 'vw'; star.style.top = Math.random() * 100 + 'vh';
+                star.style.setProperty('--duration', (Math.random() * 3 + 1.5) + 's');
+                bgContainer.appendChild(star);
+            }
+            document.body.prepend(bgContainer);
+        }
+
         function initDraggableTimer() {
             const timerEl = document.getElementById('floating-timer');
             let isDragging = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
-
-            // Desktop Mouse Events
-            timerEl.addEventListener("mousedown", dragStart);
-            document.addEventListener("mouseup", dragEnd);
-            document.addEventListener("mousemove", drag);
             
-            // Mobile Touch Events! 📱
-            timerEl.addEventListener("touchstart", dragStart, {passive: false});
-            document.addEventListener("touchend", dragEnd);
-            document.addEventListener("touchmove", drag, {passive: false});
-
+            timerEl.addEventListener("mousedown", dragStart); document.addEventListener("mouseup", dragEnd); document.addEventListener("mousemove", drag);
+            timerEl.addEventListener("touchstart", dragStart, {passive: false}); document.addEventListener("touchend", dragEnd); document.addEventListener("touchmove", drag, {passive: false});
+            
             function dragStart(e) {
-                if (e.target.tagName.toLowerCase() === 'button') return; // Don't drag if clicking buttons
-                
-                if (e.type === "touchstart") {
-                    initialX = e.touches[0].clientX - xOffset;
-                    initialY = e.touches[0].clientY - yOffset;
-                } else {
-                    initialX = e.clientX - xOffset;
-                    initialY = e.clientY - yOffset;
-                }
+                if (e.target.tagName.toLowerCase() === 'button' || e.target.tagName.toLowerCase() === 'select') return;
+                if (e.type === "touchstart") { initialX = e.touches[0].clientX - xOffset; initialY = e.touches[0].clientY - yOffset; } 
+                else { initialX = e.clientX - xOffset; initialY = e.clientY - yOffset; }
                 isDragging = true;
             }
-            function dragEnd(e) { initialX = currentX; initialY = currentY; isDragging = false; }
+            function dragEnd(e) { if(isDragging) { initialX = currentX; initialY = currentY; isDragging = false; } }
             function drag(e) {
                 if (isDragging) {
-                    if(e.cancelable) e.preventDefault(); // Prevent scrolling the page while dragging
+                    if(e.cancelable) e.preventDefault(); 
+                    if (e.type === "touchmove") { currentX = e.touches[0].clientX - initialX; currentY = e.touches[0].clientY - initialY; } 
+                    else { currentX = e.clientX - initialX; currentY = e.clientY - initialY; }
                     
-                    if (e.type === "touchmove") {
-                        currentX = e.touches[0].clientX - initialX;
-                        currentY = e.touches[0].clientY - initialY;
-                    } else {
-                        currentX = e.clientX - initialX;
-                        currentY = e.clientY - initialY;
-                    }
+                    // FIX: Screen boundary checks so timer doesn't get lost in the void!
+                    const rect = timerEl.getBoundingClientRect();
+                    const maxX = window.innerWidth - rect.width;
+                    const maxY = window.innerHeight - rect.height;
                     
-                    xOffset = currentX;
-                    yOffset = currentY;
+                    // We need to calculate absolute position to restrict it
+                    // Since it's fixed bottom/right, dragging adjusts transform relative to that.
+                    // This simple drag bounds prevents wild throwing off screen
+                    if(currentX > 20) currentX = 20; 
+                    if(currentY > 20) currentY = 20;
+                    
+                    xOffset = currentX; yOffset = currentY;
                     timerEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
                 }
             }
         }
 
-        // --- Easter Egg Panic Logic (Still intact!) ---
+        // Modals
         window.firePanicButton = function() {
-            const modal = document.getElementById('panicModal');
             document.getElementById('motivationalQuote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
-            modal.classList.remove('hidden'); modal.classList.add('flex');
+            const modal = document.getElementById('panicModal'); modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); document.getElementById('panicContent').classList.remove('scale-95'); document.getElementById('panicContent').classList.add('scale-100'); }, 10);
         };
         window.closePanicButton = function() {
-            const modal = document.getElementById('panicModal');
-            modal.classList.remove('opacity-100'); modal.classList.add('opacity-0'); document.getElementById('panicContent').classList.remove('scale-100'); document.getElementById('panicContent').classList.add('scale-95');
+            const modal = document.getElementById('panicModal'); modal.classList.remove('opacity-100'); modal.classList.add('opacity-0'); document.getElementById('panicContent').classList.remove('scale-100'); document.getElementById('panicContent').classList.add('scale-95');
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         };
-
-        // --- SUPPORT MODAL LOGIC ---
         window.toggleSupportModal = function() {
-            const modal = document.getElementById('supportModal');
-            const content = document.getElementById('supportContent');
-            
+            const modal = document.getElementById('supportModal'); const content = document.getElementById('supportContent');
             if(modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden'); modal.classList.add('flex');
                 setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
@@ -920,7 +1086,6 @@
                 setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
             }
         };
-
     </script>
 </body>
 </html>
