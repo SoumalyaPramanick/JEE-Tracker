@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
@@ -43,7 +43,7 @@
         }
         @media (min-width: 768px) { .chart-container { height: 300px; } }
 
-        /* Custom Scrollbars */
+        /* Scrollbars */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -51,12 +51,6 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        .phase-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .phase-btn:active { transform: scale(0.9); }
-        .phase-btn.active-theory { background-color: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #38bdf8; text-shadow: 0 0 8px rgba(56, 189, 248, 0.5); }
-        .phase-btn.active-practice { background-color: rgba(192, 132, 252, 0.2); border-color: #c084fc; color: #c084fc; text-shadow: 0 0 8px rgba(192, 132, 252, 0.5); }
-        .phase-btn.active-mock { background-color: rgba(244, 114, 182, 0.2); border-color: #f472b6; color: #f472b6; text-shadow: 0 0 8px rgba(244, 114, 182, 0.5); }
-        
         @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
         .animate-float { animation: float 4s ease-in-out infinite; }
         
@@ -66,7 +60,7 @@
         @keyframes pulse-donate { 0%, 100% { box-shadow: 0 0 15px rgba(244, 114, 182, 0.5); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(244, 114, 182, 0.9); transform: scale(1.05); } }
         .btn-donate { animation: pulse-donate 2s infinite; }
 
-        /* Dynamic Background 🌌 (Colors updated via JS based on Exam) */
+        /* Dynamic Background 🌌 */
         .bg-orb { position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1; opacity: 0.25; animation: drift 20s infinite alternate ease-in-out; pointer-events: none; transition: background-color 1.5s ease; }
         .orb-1 { width: 45vw; height: 45vw; background: #c084fc; top: -10%; left: -10%; animation-duration: 25s; }
         .orb-2 { width: 35vw; height: 35vw; background: #38bdf8; bottom: -10%; right: -10%; animation-duration: 30s; animation-direction: alternate-reverse; }
@@ -75,28 +69,19 @@
         .star { position: fixed; background: white; border-radius: 50%; z-index: -1; pointer-events: none; animation: twinkle var(--duration) infinite alternate ease-in-out; }
         @keyframes twinkle { 0% { opacity: 0.1; transform: scale(0.8); } 100% { opacity: 0.8; transform: scale(1.4); } }
 
-        /* UI Tweaks */
+        /* Timer & Cards */
         #floating-timer { position: fixed; bottom: 20px; right: 20px; z-index: 99; cursor: grab; user-select: none; transition: width 0.3s ease, padding 0.3s ease, transform 0.1s; }
         #floating-timer:active { cursor: grabbing; transform: scale(0.98); }
         .tilt-card { transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s; }
         .tilt-card:hover { transform: translateY(-5px) rotate(1deg); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
         @keyframes slideInLeft { 0% { transform: translateX(-120%); opacity: 0; } 10% { transform: translateX(0); opacity: 1; } 90% { transform: translateX(0); opacity: 1; } 100% { transform: translateX(-120%); opacity: 0; } }
         .toast-animate { animation: slideInLeft 6s ease-in-out forwards; }
-        
-        /* SHIMMER EFFECT ✨ */
-        .shimmer-bar { position: relative; overflow: hidden; }
-        .shimmer-bar::after {
-            content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
-            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
-            transform: translateX(-100%); animation: shimmer 2.5s infinite;
-        }
-        @keyframes shimmer { 100% { transform: translateX(100%); } }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col" onload="initApp()">
 
-    <!-- SAFE-LIST HACK FOR TAILWIND DYNAMIC CLASSES -->
-    <div class="hidden grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 md:grid-cols-1 md:grid-cols-2 md:grid-cols-3 md:grid-cols-4 lg:grid-cols-2 lg:grid-cols-3 lg:grid-cols-4 lg:grid-cols-5 text-neon-blue text-neon-purple text-neon-pink text-neon-green text-neon-orange border-neon-blue border-neon-purple border-neon-pink border-neon-green border-neon-orange bg-neon-blue/20 bg-neon-purple/20 bg-neon-pink/20 bg-neon-green/20 bg-neon-orange/20 from-neon-blue from-neon-purple from-neon-pink from-neon-green from-neon-orange text-red-400 border-red-500 bg-red-500/20 text-green-400 border-green-500 bg-green-500/20 bg-green-600/80 border-green-400 bg-red-600/80 border-red-400 tabular-nums"></div>
+    <!-- ULTIMATE SAFELIST FOR DYNAMIC JS CLASSES (Prevents Tailwind from breaking styles) -->
+    <div class="hidden grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 md:grid-cols-1 md:grid-cols-2 md:grid-cols-3 md:grid-cols-4 lg:grid-cols-2 lg:grid-cols-3 lg:grid-cols-4 lg:grid-cols-5 text-neon-blue text-neon-purple text-neon-pink text-neon-green text-neon-orange border-neon-blue border-neon-purple border-neon-pink border-neon-green border-neon-orange bg-neon-blue/20 bg-neon-purple/20 bg-neon-pink/20 bg-neon-green/20 bg-neon-orange/20 text-red-400 border-red-500 bg-red-500/20 text-green-400 border-green-500 bg-green-500/20 bg-green-600/80 border-green-400 bg-red-600/80 border-red-400 tabular-nums drop-shadow-[0_0_8px_rgba(56,189,248,0.8)] shadow-[inset_0_0_10px_rgba(56,189,248,0.2)] drop-shadow-[0_0_8px_rgba(192,132,252,0.8)] shadow-[inset_0_0_10px_rgba(192,132,252,0.2)] drop-shadow-[0_0_8px_rgba(244,114,182,0.8)] shadow-[inset_0_0_10px_rgba(244,114,182,0.2)] shadow-[0_0_12px_rgba(56,189,248,0.5)] transform scale-[1.02] scale-105 active:scale-90 active:scale-95 border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-500 hover:bg-slate-800 border-slate-600 text-slate-400 hover:text-white"></div>
 
     <!-- Coach Toast Notification Hub -->
     <div id="coach-toast" class="fixed bottom-6 left-6 z-[105] bg-slate-900 border-l-4 border-neon-pink p-4 rounded-lg shadow-[0_0_20px_rgba(244,114,182,0.3)] hidden max-w-xs flex-col gap-1 pointer-events-none">
@@ -212,7 +197,7 @@
             <h3 class="text-xl font-semibold text-white mb-6 leading-relaxed" id="quizQuestion">Question?</h3>
             <div class="flex flex-col gap-3" id="quizOptions"></div>
             <div class="mt-4 text-center min-h-[24px]"><p id="quizFeedback" class="text-sm font-bold animate-pulse"></p></div>
-            <button onclick="openQuizModal()" id="quizNextBtn" class="hidden w-full mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-all shadow-md focus:outline-none">Hit me with another one 🥊</button>
+            <button onclick="openQuizModal()" id="quizNextBtn" class="hidden w-full mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md focus:outline-none">Hit me with another one 🥊</button>
         </div>
     </div>
 
@@ -446,6 +431,7 @@
 
         let ALL_EXAMS_DATA = getFreshData();
 
+        // --- QUIZ DB ---
         const QUIZ_DB = {
             JEE: [
                 { q: "A particle is projected at 45°. The kinetic energy at the highest point is...", options: ["Zero", "Half of initial", "Same as initial", "One fourth"], answer: 1, diff: "Easy", subj: "Physics" },
@@ -488,7 +474,15 @@
         let chartInstances = {}; 
         let currentQuizQ = null;
         let rouletteTargetSubject = null;
-        let quizSessionScore = 0; // Added Session Score
+        let quizSessionScore = 0; 
+
+        // --- HAPTIC FEEDBACK 📱 ---
+        function triggerHaptic(type = 'light') {
+            if (!navigator.vibrate) return;
+            if (type === 'light') navigator.vibrate(30);
+            if (type === 'heavy') navigator.vibrate([40, 60, 40]);
+            if (type === 'error') navigator.vibrate([50, 100, 50, 100, 50]);
+        }
 
         function initApp() {
             updateStreak();
@@ -504,11 +498,9 @@
             initDraggableTimer();
             updateUIForExam();
             initCoachToasts();
-            updateOrbColors(); // Set correct mood colors
+            updateOrbColors();
             
             if(window.innerWidth < 768) { setTimeout(() => { toggleTimerSize(true); }, 500); }
-            
-            // Audio context requires user interaction. Adding a one-time global listener to prime it.
             document.body.addEventListener('click', primeAudioContext, { once: true });
         }
 
@@ -587,9 +579,9 @@
         function updateUIForExam() {
             const titleEl = document.getElementById('app-title'); const emojiEl = document.getElementById('app-emoji');
             const footerEl = document.getElementById('footer-text'); const rouletteEl = document.getElementById('rouletteTitle');
-            if(currentExam === 'JEE') { titleEl.innerText = "JEE Astra"; emojiEl.innerText = "🚀"; footerEl.innerText = "Stay Hard. IIT Bombay is waiting! 🔥"; rouletteEl.innerText = "NTA Demands You Study:"; } 
-            else if(currentExam === 'NEET') { titleEl.innerText = "NEET Astra"; emojiEl.innerText = "🩺"; footerEl.innerText = "Stay Hard. AIIMS is waiting! 💉"; rouletteEl.innerText = "NTA Demands You Study:"; } 
-            else if(currentExam === 'UPSC') { titleEl.innerText = "UPSC Astra"; emojiEl.innerText = "🇮🇳"; footerEl.innerText = "Stay Hard. LBSNAA is waiting! 🦅"; rouletteEl.innerText = "UPSC Demands You Revise:"; }
+            if(currentExam === 'JEE') { titleEl.innerText = "JEE Astra"; emojiEl.innerText = "🚀"; footerEl.innerText = "Stay Hard. IIT Bombay is waiting for you, boss! 🔥"; rouletteEl.innerText = "NTA Demands You Study:"; } 
+            else if(currentExam === 'NEET') { titleEl.innerText = "NEET Astra"; emojiEl.innerText = "🩺"; footerEl.innerText = "Stay Hard. AIIMS is waiting for you, Doc! 💉"; rouletteEl.innerText = "NTA Demands You Study:"; } 
+            else if(currentExam === 'UPSC') { titleEl.innerText = "UPSC Astra"; emojiEl.innerText = "🇮🇳"; footerEl.innerText = "Stay Hard. LBSNAA is waiting for you, Officer! 🦅"; rouletteEl.innerText = "UPSC Demands You Revise:"; }
         }
 
         function calculateStats() {
@@ -617,9 +609,11 @@
             }
         }
 
-        function setTab(tabName) { currentTab = tabName; currentClassFilter = 'All'; renderNav(); renderContent(); window.scrollTo(0,0); }
+        // FIX: Remove filter reset on standard tab switches so users don't lose their Class 11 view when jumping subjects
+        function setTab(tabName) { currentTab = tabName; renderNav(); renderContent(); window.scrollTo(0,0); }
         
         window.setClassFilter = function(filterVal) {
+            triggerHaptic('light');
             currentClassFilter = filterVal;
             renderContent();
         }
@@ -715,8 +709,6 @@
 
         function initDashboardCharts() {
             const stats = calculateStats(); Chart.defaults.color = '#94a3b8'; Chart.defaults.font.family = 'Inter, sans-serif';
-            
-            // Shared Tooltip Styling
             const tooltipConfig = { backgroundColor: 'rgba(15, 23, 42, 0.95)', titleColor: '#fff', bodyColor: '#cbd5e1', borderColor: 'rgba(71, 85, 105, 0.8)', borderWidth: 1, padding: 10, cornerRadius: 8 };
 
             const ctxPhase = document.getElementById('phaseChart').getContext('2d');
@@ -749,11 +741,20 @@
             const colorClasses = [ {text: 'text-neon-blue', border: 'border-neon-blue', bg: 'bg-neon-blue/20'}, {text: 'text-neon-purple', border: 'border-neon-purple', bg: 'bg-neon-purple/20'}, {text: 'text-neon-pink', border: 'border-neon-pink', bg: 'bg-neon-pink/20'}, {text: 'text-neon-green', border: 'border-neon-green', bg: 'bg-neon-green/20'}, {text: 'text-neon-orange', border: 'border-neon-orange', bg: 'bg-neon-orange/20'} ];
             const subjIndex = Object.keys(syllabusData).indexOf(subject); const accent = colorClasses[subjIndex % colorClasses.length];
 
+            // FIX: Filter Pills converted to pure Tailwind strings so they never fail to glow
+            const fBase = "px-4 py-1.5 rounded-full border text-xs font-bold transition-all duration-300 focus:outline-none";
+            const fActive = "bg-neon-blue/20 border-neon-blue text-neon-blue shadow-[0_0_12px_rgba(56,189,248,0.5)] transform scale-105";
+            const fInactive = "border-slate-600 text-slate-400 hover:text-white hover:bg-slate-800 hover:border-slate-400";
+
             let filterUI = '';
             if(currentExam === 'UPSC') {
-                filterUI = `<button onclick="setClassFilter('All')" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==='All'?'active':''}">All Phases</button><button onclick="setClassFilter('Prelims')" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==='Prelims'?'active':''}">Prelims</button><button onclick="setClassFilter('Mains')" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==='Mains'?'active':''}">Mains</button>`;
+                filterUI = `<button onclick="setClassFilter('All')" class="${fBase} ${currentClassFilter==='All'?fActive:fInactive}">All Phases</button>
+                            <button onclick="setClassFilter('Prelims')" class="${fBase} ${currentClassFilter==='Prelims'?fActive:fInactive}">Prelims</button>
+                            <button onclick="setClassFilter('Mains')" class="${fBase} ${currentClassFilter==='Mains'?fActive:fInactive}">Mains</button>`;
             } else {
-                filterUI = `<button onclick="setClassFilter('All')" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==='All'?'active':''}">Full Syllabus</button><button onclick="setClassFilter(11)" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==11?'active':''}">Class 11</button><button onclick="setClassFilter(12)" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==12?'active':''}">Class 12</button>`;
+                filterUI = `<button onclick="setClassFilter('All')" class="${fBase} ${currentClassFilter==='All'?fActive:fInactive}">Full Syllabus</button>
+                            <button onclick="setClassFilter(11)" class="${fBase} ${currentClassFilter==11?fActive:fInactive}">Class 11</button>
+                            <button onclick="setClassFilter(12)" class="${fBase} ${currentClassFilter==12?fActive:fInactive}">Class 12</button>`;
             }
 
             let html = `
@@ -772,9 +773,17 @@
 
             if(data.length === 0) html += `<div class="col-span-full text-center py-10 text-slate-500">No chapters found for this filter. 🤷‍♂️</div>`;
 
+            // FIX: Pure Tailwind strings for active/inactive phase buttons for aggressive popping
+            const btnBase = "flex flex-col items-center justify-center w-[32%] py-2 rounded-md border focus:outline-none transition-all duration-300 active:scale-90 cursor-pointer";
+            
             data.forEach((chap, index) => {
                 const isFullyMastered = chap.theory && chap.practice && chap.mock;
                 const clsTag = currentExam === 'UPSC' ? chap.cls : `Class ${chap.cls}`;
+                
+                const thActive = chap.theory ? "bg-neon-blue/20 border-neon-blue text-neon-blue drop-shadow-[0_0_8px_rgba(56,189,248,0.8)] shadow-[inset_0_0_10px_rgba(56,189,248,0.2)] font-extrabold transform scale-[1.02]" : "border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-500 hover:bg-slate-800";
+                const prActive = chap.practice ? "bg-neon-purple/20 border-neon-purple text-neon-purple drop-shadow-[0_0_8px_rgba(192,132,252,0.8)] shadow-[inset_0_0_10px_rgba(192,132,252,0.2)] font-extrabold transform scale-[1.02]" : "border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-500 hover:bg-slate-800";
+                const moActive = chap.mock ? "bg-neon-pink/20 border-neon-pink text-neon-pink drop-shadow-[0_0_8px_rgba(244,114,182,0.8)] shadow-[inset_0_0_10px_rgba(244,114,182,0.2)] font-extrabold transform scale-[1.02]" : "border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-500 hover:bg-slate-800";
+
                 html += `
                     <div class="bg-slate-800/60 border ${isFullyMastered ? `border-${accent.border.replace('border-','')} shadow-[0_0_15px_rgba(0,0,0,0.5)]` : 'border-slate-700/50'} rounded-xl p-5 hover:bg-slate-800 transition-all duration-300 flex flex-col justify-between tilt-card relative overflow-hidden group">
                         ${isFullyMastered ? `<div class="absolute top-0 right-0 w-8 h-8 flex items-center justify-center ${accent.bg} rounded-bl-xl text-xs shadow-inner" title="Mastered!">👑</div>` : ''}
@@ -784,14 +793,14 @@
                             <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed" title="${chap.topics}">${chap.topics}</p>
                         </div>
                         <div class="flex items-center justify-between bg-slate-900/80 p-1.5 rounded-lg border border-slate-800/80 mt-auto">
-                            <button onclick="togglePhase('${subject}', '${chap.id}', 'theory', event)" class="phase-btn flex flex-col items-center justify-center w-[32%] py-2 rounded-md border border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-500 focus:outline-none ${chap.theory ? 'active-theory bg-opacity-30' : ''}">
-                                <span class="text-sm mb-0.5">📖</span><span class="text-[9px] font-bold uppercase tracking-wider">Theory</span>
+                            <button onclick="togglePhase('${subject}', '${chap.id}', 'theory', event)" class="${btnBase} ${thActive}">
+                                <span class="text-sm mb-0.5">📖</span><span class="text-[9px] uppercase tracking-wider">Theory</span>
                             </button>
-                            <button onclick="togglePhase('${subject}', '${chap.id}', 'practice', event)" class="phase-btn flex flex-col items-center justify-center w-[32%] py-2 rounded-md border border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-500 focus:outline-none ${chap.practice ? 'active-practice bg-opacity-30' : ''}">
-                                <span class="text-sm mb-0.5">✍️</span><span class="text-[9px] font-bold uppercase tracking-wider">Prac</span>
+                            <button onclick="togglePhase('${subject}', '${chap.id}', 'practice', event)" class="${btnBase} ${prActive}">
+                                <span class="text-sm mb-0.5">✍️</span><span class="text-[9px] uppercase tracking-wider">Prac</span>
                             </button>
-                            <button onclick="togglePhase('${subject}', '${chap.id}', 'mock', event)" class="phase-btn flex flex-col items-center justify-center w-[32%] py-2 rounded-md border border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-500 focus:outline-none ${chap.mock ? 'active-mock bg-opacity-30' : ''}">
-                                <span class="text-sm mb-0.5">🎯</span><span class="text-[9px] font-bold uppercase tracking-wider">Mock</span>
+                            <button onclick="togglePhase('${subject}', '${chap.id}', 'mock', event)" class="${btnBase} ${moActive}">
+                                <span class="text-sm mb-0.5">🎯</span><span class="text-[9px] uppercase tracking-wider">Mock</span>
                             </button>
                         </div>
                     </div>`;
@@ -799,7 +808,7 @@
             html += `</div></div>`; return html;
         }
 
-        // --- LEVEL UP AUDIO ✨ ---
+        // --- HAPTICS & AUDIO ✨ ---
         function playLevelUp() {
             try {
                 if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -812,18 +821,21 @@
             } catch(e) {}
         }
 
-        // Prime Audio Context safely
+        function triggerHaptic(type = 'light') {
+            if (!navigator.vibrate) return;
+            if (type === 'light') navigator.vibrate(30);
+            if (type === 'heavy') navigator.vibrate([40, 60, 40]);
+            if (type === 'error') navigator.vibrate([50, 100, 50, 100, 50]);
+        }
+
         function primeAudioContext() {
-            if(!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if(audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
         }
 
         window.togglePhase = function(subject, chapterId, phase, event) {
-            primeAudioContext(); // Ensure audio is ready
+            triggerHaptic('light');
+            primeAudioContext(); 
             const fullSubjectData = syllabusData[subject]; 
             const chapter = fullSubjectData.find(c => c.id === chapterId);
             if(chapter) {
@@ -832,6 +844,8 @@
                 const isMasteredNow = chapter.theory && chapter.practice && chapter.mock;
                 
                 if (!wasMastered && isMasteredNow) {
+                    triggerHaptic('heavy');
+                    // FIX: Bulletproof Confetti logic with fallbacks to screen center!
                     let clientX = window.innerWidth / 2; let clientY = window.innerHeight / 2;
                     if (event) {
                         if (event.touches && event.touches.length > 0) { clientX = event.touches[0].clientX; clientY = event.touches[0].clientY; }
@@ -847,10 +861,11 @@
 
         // --- QUIZZES ---
         window.openQuizModal = function() {
+            triggerHaptic('light');
             const questions = QUIZ_DB[currentExam] || QUIZ_DB['JEE'];
             currentQuizQ = questions[Math.floor(Math.random() * questions.length)];
             document.getElementById('quizSubject').innerText = currentQuizQ.subj; document.getElementById('quizQuestion').innerText = currentQuizQ.q;
-            document.getElementById('quizSessionStreak').innerText = `Score: ${quizSessionScore}`;
+            document.getElementById('quizSessionStreak').innerText = `Streak: ${quizSessionScore}`;
             
             const badge = document.getElementById('quizBadge'); badge.innerText = currentQuizQ.diff;
             badge.className = currentQuizQ.diff === 'Hard' ? 'px-2 py-1 text-[10px] font-bold uppercase rounded-md border bg-red-500/20 text-red-400 border-red-500' : 'px-2 py-1 text-[10px] font-bold uppercase rounded-md border bg-green-500/20 text-green-400 border-green-500';
@@ -866,19 +881,19 @@
             const correctIdx = currentQuizQ.answer; const feedback = document.getElementById('quizFeedback');
             for(let i=0; i<currentQuizQ.options.length; i++) {
                 let btn = document.getElementById(`qOpt${i}`); btn.disabled = true; btn.classList.remove('hover:bg-slate-700');
-                if (i === correctIdx) { btn.classList.replace('bg-slate-800', 'bg-green-600/80'); btn.classList.replace('border-slate-600', 'border-green-400'); btn.classList.replace('text-slate-300', 'text-white'); } 
-                else if (i === selectedIdx && selectedIdx !== correctIdx) { btn.classList.replace('bg-slate-800', 'bg-red-600/80'); btn.classList.replace('border-slate-600', 'border-red-400'); btn.classList.replace('text-slate-300', 'text-white'); } 
+                if (i === correctIdx) { btn.classList.replace('bg-slate-800', 'bg-green-600/80'); btn.classList.replace('border-slate-600', 'border-green-400'); btn.classList.replace('text-slate-300', 'text-white'); btn.classList.add('shadow-[0_0_15px_rgba(74,222,128,0.4)]'); } 
+                else if (i === selectedIdx && selectedIdx !== correctIdx) { btn.classList.replace('bg-slate-800', 'bg-red-600/80'); btn.classList.replace('border-slate-600', 'border-red-400'); btn.classList.replace('text-slate-300', 'text-white'); btn.classList.add('shadow-[0_0_15px_rgba(248,113,113,0.4)]'); } 
                 else { btn.classList.add('opacity-50'); }
             }
             if(selectedIdx === correctIdx) { 
-                quizSessionScore++;
-                document.getElementById('quizSessionStreak').innerText = `Score: ${quizSessionScore}`;
+                triggerHaptic('light');
+                quizSessionScore++; document.getElementById('quizSessionStreak').innerText = `Streak: ${quizSessionScore}`;
                 feedback.innerHTML = '<span class="text-green-400 text-lg">✅ Let\'s GO! The examiner is crying.</span>'; 
                 confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 }, zIndex: 1000 }); 
             } 
             else { 
-                quizSessionScore = 0; // Reset score on failure
-                document.getElementById('quizSessionStreak').innerText = `Score: ${quizSessionScore}`;
+                triggerHaptic('error');
+                quizSessionScore = 0; document.getElementById('quizSessionStreak').innerText = `Streak: ${quizSessionScore}`;
                 feedback.innerHTML = '<span class="text-red-400 text-lg">🤡 Bruh... Time to revise some theory.</span>'; 
             }
             document.getElementById('quizNextBtn').classList.remove('hidden');
@@ -891,6 +906,7 @@
 
         // --- NTA ROULETTE ---
         window.playNTARoulette = function() {
+            triggerHaptic('light');
             let unfinished = [];
             for(let subj in syllabusData) { syllabusData[subj].forEach(ch => { if(!ch.theory || !ch.practice || !ch.mock) unfinished.push({subject: subj, chapter: ch.name}); }); }
             const modal = document.getElementById('rouletteModal');
@@ -910,8 +926,14 @@
             setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); document.getElementById('rouletteContent').classList.remove('scale-95'); document.getElementById('rouletteContent').classList.add('scale-100'); }, 10);
         };
         window.acceptRouletteChallenge = function() {
+            triggerHaptic('light');
             closeRouletteModal();
-            if(rouletteTargetSubject) { setTimeout(() => { setTab(rouletteTargetSubject); }, 300); }
+            if(rouletteTargetSubject) { 
+                setTimeout(() => { 
+                    currentClassFilter = 'All'; // FIX: Force "All" filter so the chapter is guaranteed visible!
+                    setTab(rouletteTargetSubject); 
+                }, 300); 
+            }
         }
         window.closeRouletteModal = function() {
             const modal = document.getElementById('rouletteModal'); modal.classList.remove('opacity-100'); modal.classList.add('opacity-0'); document.getElementById('rouletteContent').classList.remove('scale-100'); document.getElementById('rouletteContent').classList.add('scale-95');
@@ -924,7 +946,7 @@
         window.toggleTimerSize = function(forceMinimize = false) {
             const controls = document.getElementById('timer-controls'); const timerEl = document.getElementById('floating-timer'); const displayEl = document.getElementById('timer-display'); const iconEl = document.getElementById('timer-size-icon'); const miniBtn = document.getElementById('mini-timer-btn'); const modeEl = document.getElementById('timer-mode');
             if(controls.classList.contains('hidden') && !forceMinimize) {
-                controls.classList.remove('hidden'); miniBtn.classList.add('hidden'); timerEl.classList.add('w-56', 'p-4'); timerEl.classList.remove('w-auto', 'p-2', 'pl-4'); displayEl.classList.add('text-4xl'); displayEl.classList.remove('text-2xl'); iconEl.innerText = '➖'; modeEl.innerText = isGrindMode ? "Grind Phase 🧠" : "Cry Phase 😭";
+                controls.classList.remove('hidden'); miniBtn.classList.add('hidden'); timerEl.classList.add('w-56', 'p-4'); timerEl.classList.remove('w-auto', 'p-2', 'pl-4', 'pr-3'); displayEl.classList.add('text-4xl'); displayEl.classList.remove('text-2xl'); iconEl.innerText = '➖'; modeEl.innerText = isGrindMode ? "Grind Phase 🧠" : "Cry Phase 😭";
             } else {
                 controls.classList.add('hidden'); miniBtn.classList.remove('hidden'); timerEl.classList.remove('w-56', 'p-4'); timerEl.classList.add('w-auto', 'p-2', 'pl-4', 'pr-3'); displayEl.classList.remove('text-4xl'); displayEl.classList.add('text-2xl'); iconEl.innerText = '➕'; modeEl.innerText = isGrindMode ? "🧠" : "😭"; 
             }
@@ -934,6 +956,7 @@
         function updateTimerDisplay() { const mins = Math.floor(timeLeft / 60); const secs = timeLeft % 60; document.getElementById('timer-display').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`; }
         
         window.toggleTimer = function() {
+            triggerHaptic('light');
             primeAudioContext();
             const btn = document.getElementById('timer-btn'); const miniBtn = document.getElementById('mini-timer-btn');
             if(isTimerRunning) {
@@ -944,7 +967,7 @@
                 timerInterval = setInterval(() => {
                     timeLeft--; updateTimerDisplay();
                     if(timeLeft <= 0) {
-                        clearInterval(timerInterval); playLevelUp(); alert(isGrindMode ? "Grind over! Take a break." : "Break over! Back to the mines."); switchTimerMode();
+                        clearInterval(timerInterval); playLevelUp(); triggerHaptic('heavy'); alert(isGrindMode ? "Grind over! Take a break." : "Break over! Back to the mines."); switchTimerMode();
                     }
                 }, 1000);
             }
@@ -960,7 +983,7 @@
         };
 
         // --- ENHANCED AUDIO HUB ---
-        let currentNodes = []; let isAudioPlaying = false;
+        let audioCtx, currentNodes = []; let isAudioPlaying = false;
         function stopCurrentAudio() { currentNodes.forEach(node => { try{node.stop()}catch(e){} try{node.disconnect()}catch(e){} }); currentNodes = []; }
         window.changeAudioType = function() { if(isAudioPlaying) { primeAudioContext(); audioCtx.suspend(); stopCurrentAudio(); startSynth(); audioCtx.resume(); } }
         function startSynth() {
@@ -971,7 +994,7 @@
             else if (type === 'binaural') { const osc1 = audioCtx.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = 200; const osc2 = audioCtx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = 210; const merger = audioCtx.createChannelMerger(2); osc1.connect(merger, 0, 0); osc2.connect(merger, 0, 1); const gain = audioCtx.createGain(); gain.gain.value = 0.15; merger.connect(gain); gain.connect(audioCtx.destination); osc1.start(); osc2.start(); currentNodes.push(osc1, osc2, merger, gain); }
         }
         window.toggleAudioHub = function() {
-            primeAudioContext();
+            primeAudioContext(); triggerHaptic('light');
             const btn = document.getElementById('audio-btn'); 
             if (isAudioPlaying) { audioCtx.suspend(); btn.innerHTML = '🎧 Audio: OFF'; btn.classList.remove('text-neon-blue', 'border-neon-blue', 'shadow-[0_0_10px_rgba(56,189,248,0.3)]'); } else { if(currentNodes.length === 0) startSynth(); audioCtx.resume(); btn.innerHTML = '🔊 Audio: ON'; btn.classList.add('text-neon-blue', 'border-neon-blue', 'shadow-[0_0_10px_rgba(56,189,248,0.3)]'); }
             isAudioPlaying = !isAudioPlaying;
@@ -1040,9 +1063,9 @@
         }
 
         // Modals
-        window.firePanicButton = function() { document.getElementById('motivationalQuote').innerText = quotes[Math.floor(Math.random() * quotes.length)]; const modal = document.getElementById('panicModal'); modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); document.getElementById('panicContent').classList.remove('scale-95'); document.getElementById('panicContent').classList.add('scale-100'); }, 10); };
-        window.closePanicButton = function() { const modal = document.getElementById('panicModal'); modal.classList.remove('opacity-100'); modal.classList.add('opacity-0'); document.getElementById('panicContent').classList.remove('scale-100'); document.getElementById('panicContent').classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); };
-        window.toggleSupportModal = function() { const modal = document.getElementById('supportModal'); const content = document.getElementById('supportContent'); if(modal.classList.contains('hidden')) { modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10); } else { modal.classList.remove('opacity-100'); modal.classList.add('opacity-0'); content.classList.remove('scale-100'); content.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); } };
+        window.firePanicButton = function() { triggerHaptic('light'); document.getElementById('motivationalQuote').innerText = quotes[Math.floor(Math.random() * quotes.length)]; const modal = document.getElementById('panicModal'); modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); document.getElementById('panicContent').classList.remove('scale-95'); document.getElementById('panicContent').classList.add('scale-100'); }, 10); };
+        window.closePanicButton = function() { triggerHaptic('light'); const modal = document.getElementById('panicModal'); modal.classList.remove('opacity-100'); modal.classList.add('opacity-0'); document.getElementById('panicContent').classList.remove('scale-100'); document.getElementById('panicContent').classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); };
+        window.toggleSupportModal = function() { triggerHaptic('light'); const modal = document.getElementById('supportModal'); const content = document.getElementById('supportContent'); if(modal.classList.contains('hidden')) { modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10); } else { modal.classList.remove('opacity-100'); modal.classList.add('opacity-0'); content.classList.remove('scale-100'); content.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); } };
     </script>
 </body>
 </html>
