@@ -14,7 +14,7 @@
                 extend: {
                     colors: {
                         slate: { 850: '#151e2e', 900: '#0f172a', 950: '#020617' },
-                        neon: { blue: '#38bdf8', purple: '#c084fc', pink: '#f472b6', green: '#4ade80', orange: '#fb923c' }
+                        neon: { blue: '#38bdf8', purple: '#c084fc', pink: '#f472b6', green: '#4ade80', orange: '#fb923c', yellow: '#facc15', red: '#f87171', teal: '#2dd4bf' }
                     },
                     fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
                 }
@@ -22,14 +22,9 @@
         }
     </script>
 
-    <!-- Chart.js -->
+    <!-- Chart.js & Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-    <!-- Application Structure Plan: Multi-exam SPA with persistent state, interactive trackers, built-in productivity tools (Pomodoro/Audio/Quizzes) -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. Pure DOM/Canvas/Emoji magic. -->
 
     <style>
         body { background-color: #0f172a; color: #cbd5e1; overflow-x: hidden; }
@@ -48,13 +43,11 @@
         }
         @media (min-width: 768px) { .chart-container { height: 300px; } }
 
-        /* Standard Scrollbar */
+        /* Custom Scrollbars */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-        /* Utility to completely hide scrollbar but keep functionality (Mobile Nav) */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -73,8 +66,8 @@
         @keyframes pulse-donate { 0%, 100% { box-shadow: 0 0 15px rgba(244, 114, 182, 0.5); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(244, 114, 182, 0.9); transform: scale(1.05); } }
         .btn-donate { animation: pulse-donate 2s infinite; }
 
-        /* Dynamic Background 🌌 */
-        .bg-orb { position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1; opacity: 0.25; animation: drift 20s infinite alternate ease-in-out; pointer-events: none; }
+        /* Dynamic Background 🌌 (Colors updated via JS based on Exam) */
+        .bg-orb { position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1; opacity: 0.25; animation: drift 20s infinite alternate ease-in-out; pointer-events: none; transition: background-color 1.5s ease; }
         .orb-1 { width: 45vw; height: 45vw; background: #c084fc; top: -10%; left: -10%; animation-duration: 25s; }
         .orb-2 { width: 35vw; height: 35vw; background: #38bdf8; bottom: -10%; right: -10%; animation-duration: 30s; animation-direction: alternate-reverse; }
         .orb-3 { width: 30vw; height: 30vw; background: #fb923c; top: 40%; left: 50%; animation-duration: 22s; opacity: 0.15; }
@@ -82,35 +75,32 @@
         .star { position: fixed; background: white; border-radius: 50%; z-index: -1; pointer-events: none; animation: twinkle var(--duration) infinite alternate ease-in-out; }
         @keyframes twinkle { 0% { opacity: 0.1; transform: scale(0.8); } 100% { opacity: 0.8; transform: scale(1.4); } }
 
-        /* Floating Timer Styles */
+        /* UI Tweaks */
         #floating-timer { position: fixed; bottom: 20px; right: 20px; z-index: 99; cursor: grab; user-select: none; transition: width 0.3s ease, padding 0.3s ease, transform 0.1s; }
         #floating-timer:active { cursor: grabbing; transform: scale(0.98); }
-        
-        /* Interactive Card Tilt */
         .tilt-card { transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s; }
         .tilt-card:hover { transform: translateY(-5px) rotate(1deg); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
-        
-        /* Toast Animation */
-        @keyframes slideInLeft {
-            0% { transform: translateX(-120%); opacity: 0; }
-            10% { transform: translateX(0); opacity: 1; }
-            90% { transform: translateX(0); opacity: 1; }
-            100% { transform: translateX(-120%); opacity: 0; }
-        }
+        @keyframes slideInLeft { 0% { transform: translateX(-120%); opacity: 0; } 10% { transform: translateX(0); opacity: 1; } 90% { transform: translateX(0); opacity: 1; } 100% { transform: translateX(-120%); opacity: 0; } }
         .toast-animate { animation: slideInLeft 6s ease-in-out forwards; }
+        
+        /* SHIMMER EFFECT ✨ */
+        .shimmer-bar { position: relative; overflow: hidden; }
+        .shimmer-bar::after {
+            content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: translateX(-100%); animation: shimmer 2.5s infinite;
+        }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col" onload="initApp()">
 
     <!-- SAFE-LIST HACK FOR TAILWIND DYNAMIC CLASSES -->
-    <div class="hidden grid-cols-2 grid-cols-3 md:grid-cols-3 md:grid-cols-4 text-neon-blue text-neon-purple text-neon-pink text-neon-green text-neon-orange border-neon-blue border-neon-purple border-neon-pink border-neon-green border-neon-orange bg-neon-blue/20 bg-neon-purple/20 bg-neon-pink/20 bg-neon-green/20 bg-neon-orange/20 from-neon-blue from-neon-purple from-neon-pink from-neon-green from-neon-orange text-red-400 border-red-500 bg-red-500/20 text-green-400 border-green-500 bg-green-500/20 bg-green-600/80 border-green-400 bg-red-600/80 border-red-400"></div>
+    <div class="hidden grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 md:grid-cols-1 md:grid-cols-2 md:grid-cols-3 md:grid-cols-4 lg:grid-cols-2 lg:grid-cols-3 lg:grid-cols-4 lg:grid-cols-5 text-neon-blue text-neon-purple text-neon-pink text-neon-green text-neon-orange border-neon-blue border-neon-purple border-neon-pink border-neon-green border-neon-orange bg-neon-blue/20 bg-neon-purple/20 bg-neon-pink/20 bg-neon-green/20 bg-neon-orange/20 from-neon-blue from-neon-purple from-neon-pink from-neon-green from-neon-orange text-red-400 border-red-500 bg-red-500/20 text-green-400 border-green-500 bg-green-500/20 bg-green-600/80 border-green-400 bg-red-600/80 border-red-400 tabular-nums"></div>
 
     <!-- Coach Toast Notification Hub -->
     <div id="coach-toast" class="fixed bottom-6 left-6 z-[105] bg-slate-900 border-l-4 border-neon-pink p-4 rounded-lg shadow-[0_0_20px_rgba(244,114,182,0.3)] hidden max-w-xs flex-col gap-1 pointer-events-none">
-        <div class="flex items-center gap-2">
-            <span class="text-xl">👁️</span>
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Coach says:</span>
-        </div>
+        <div class="flex items-center gap-2"><span class="text-xl">👁️</span><span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Coach says:</span></div>
         <p id="toast-message" class="text-sm font-medium text-white italic">"Stop staring at the wall and solve the numerical."</p>
     </div>
 
@@ -130,7 +120,7 @@
                         </div>
                     </div>
                     
-                    <select id="exam-selector" onchange="switchExam()" class="shrink-0 bg-slate-800 border border-slate-600 text-white text-xs rounded-lg focus:ring-neon-purple focus:border-neon-purple block p-2 ml-2 sm:ml-6 shadow-[0_0_10px_rgba(192,132,252,0.2)] cursor-pointer outline-none">
+                    <select id="exam-selector" onchange="switchExam()" class="shrink-0 bg-slate-800 border border-slate-600 text-white text-xs rounded-lg focus:ring-neon-purple focus:border-neon-purple block p-2 ml-2 sm:ml-6 shadow-[0_0_10px_rgba(192,132,252,0.2)] cursor-pointer outline-none transition-colors">
                         <option value="JEE">🎯 Target: JEE (PCM)</option>
                         <option value="NEET">🩺 Target: NEET (PCB)</option>
                         <option value="UPSC">🇮🇳 Target: UPSC (CSE)</option>
@@ -138,7 +128,6 @@
                 </div>
                 
                 <div class="flex items-center gap-4 mt-2 sm:mt-0 w-full sm:w-auto">
-                    <!-- The Daily Streak 🔥 -->
                     <div class="flex items-center gap-2 bg-slate-900 border border-orange-500/50 px-3 py-1 rounded-full shadow-[0_0_10px_rgba(251,146,60,0.2)] shrink-0">
                         <span class="text-orange-500 text-sm animate-pulse">🔥</span>
                         <span class="text-xs font-bold text-orange-400" id="streak-counter">0 Day Streak</span>
@@ -164,15 +153,9 @@
         </button>
 
         <div class="flex flex-wrap justify-center gap-4 mt-4">
-            <button onclick="backupData()" class="text-[10px] uppercase tracking-widest text-neon-blue hover:text-white transition-colors flex items-center gap-1 focus:outline-none p-2">
-                <span>☁️</span> Backup Data
-            </button>
-            <button onclick="restoreData()" class="text-[10px] uppercase tracking-widest text-neon-green hover:text-white transition-colors flex items-center gap-1 focus:outline-none p-2">
-                <span>📥</span> Restore
-            </button>
-            <button onclick="nukeDatabase()" class="text-[10px] uppercase tracking-widest text-slate-600 hover:text-red-500 transition-colors flex items-center gap-1 focus:outline-none p-2">
-                <span>☢️</span> Reset All
-            </button>
+            <button onclick="backupData()" class="text-[10px] uppercase tracking-widest text-neon-blue hover:text-white transition-colors flex items-center gap-1 focus:outline-none p-2"><span>☁️</span> Backup Data</button>
+            <button onclick="restoreData()" class="text-[10px] uppercase tracking-widest text-neon-green hover:text-white transition-colors flex items-center gap-1 focus:outline-none p-2"><span>📥</span> Restore</button>
+            <button onclick="nukeDatabase()" class="text-[10px] uppercase tracking-widest text-slate-600 hover:text-red-500 transition-colors flex items-center gap-1 focus:outline-none p-2"><span>☢️</span> Reset All</button>
         </div>
     </footer>
 
@@ -182,13 +165,9 @@
             <button onclick="toggleSupportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-3xl font-bold focus:outline-none">&times;</button>
             <h2 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500 mb-2 uppercase tracking-wider">Fuel the Grind ⚡</h2>
             <p class="text-slate-300 text-sm mb-4 font-medium">This tracker is 100% free. If it's saving your prep, drop a tip to fuel my 2 AM coding sessions. May the examiners bless your paper. 🙏</p>
-            
             <div class="bg-slate-800 p-2 rounded-xl inline-block mb-4 relative min-h-[192px] min-w-[192px] flex items-center justify-center border-2 border-slate-600">
                 <img src="upi.png" alt="UPI QR Code Placeholder" class="w-48 h-48 object-cover rounded-lg z-10 relative shadow-md" onerror="this.style.display='none'; document.getElementById('qr-fallback').classList.remove('hidden'); document.getElementById('qr-fallback').classList.add('flex');">
-                <div id="qr-fallback" class="hidden absolute inset-0 w-full h-full bg-slate-800 rounded-lg flex-col items-center justify-center text-slate-500 text-center p-2 z-0">
-                    <span class="text-4xl mb-2">📸</span>
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Upload upi.png<br>to GitHub Repo</span>
-                </div>
+                <div id="qr-fallback" class="hidden absolute inset-0 w-full h-full bg-slate-800 rounded-lg flex-col items-center justify-center text-slate-500 text-center p-2 z-0"><span class="text-4xl mb-2">📸</span><span class="text-xs font-bold uppercase tracking-wider text-slate-400">Upload upi.png<br>to GitHub Repo</span></div>
             </div>
             <p class="text-sm text-neon-pink font-mono tracking-widest uppercase font-bold bg-pink-500/10 py-2 rounded-lg border border-pink-500/30">Scan any UPI App</p>
         </div>
@@ -196,41 +175,26 @@
 
     <!-- 💊 COLLAPSIBLE FLOATING TIMER HUB -->
     <div id="floating-timer" class="glass-panel p-4 rounded-2xl border border-slate-600 shadow-[0_0_30px_rgba(0,0,0,0.8)] flex flex-col items-center gap-2 w-56">
-        
-        <!-- Header / Mini Controls -->
         <div class="flex justify-between w-full items-center cursor-grab active:cursor-grabbing">
             <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex-1 pointer-events-none" id="timer-mode">Grind Phase 🧠</div>
             <button onclick="toggleTimer()" id="mini-timer-btn" class="hidden text-slate-300 hover:text-neon-blue mx-2 text-lg focus:outline-none transition-colors">▶️</button>
-            <button onclick="toggleTimerSize()" class="text-slate-400 hover:text-white p-2 -mr-2 rounded-md hover:bg-slate-700 transition-colors focus:outline-none" title="Minimize Hub">
-                <span id="timer-size-icon">➖</span>
-            </button>
+            <button onclick="toggleTimerSize()" class="text-slate-400 hover:text-white p-2 -mr-2 rounded-md hover:bg-slate-700 transition-colors focus:outline-none" title="Minimize Hub"><span id="timer-size-icon">➖</span></button>
         </div>
+        <div class="text-4xl font-mono font-extrabold text-neon-blue drop-shadow-[0_0_8px_rgba(56,189,248,0.5)] pointer-events-none transition-all duration-300 tabular-nums tracking-tight" id="timer-display">25:00</div>
         
-        <div class="text-4xl font-mono font-extrabold text-neon-blue drop-shadow-[0_0_8px_rgba(56,189,248,0.5)] pointer-events-none transition-all duration-300" id="timer-display">25:00</div>
-        
-        <!-- Advanced Controls -->
         <div id="timer-controls" class="w-full flex flex-col gap-2 overflow-hidden origin-top transition-all duration-300">
             <select id="pomodoro-settings" onchange="updateTimerLength()" class="bg-slate-900 border border-slate-600 text-slate-300 text-[10px] rounded p-1 outline-none cursor-pointer w-full text-center">
-                <option value="25">25m 🍅</option>
-                <option value="50">50m ⚡</option>
-                <option value="90">90m 👹</option>
+                <option value="25">25m 🍅</option><option value="50">50m ⚡</option><option value="90">90m 👹</option>
             </select>
-            
             <div class="flex gap-2 w-full">
                 <button onclick="toggleTimer()" id="timer-btn" class="flex-1 bg-slate-700 hover:bg-slate-600 py-1.5 rounded text-sm transition-all active:scale-95 shadow-md font-semibold focus:outline-none">▶️ Start</button>
                 <button onclick="switchTimerMode()" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded text-sm transition-all active:scale-95 border border-slate-600 shadow-md focus:outline-none" title="Switch to Break">🔄</button>
             </div>
-            
             <div class="w-full h-px bg-slate-700 my-1 pointer-events-none"></div>
-            
             <select id="audio-type" onchange="changeAudioType()" class="w-full bg-slate-900 border border-slate-600 text-slate-300 text-[10px] rounded p-1 outline-none mb-1 cursor-pointer">
-                <option value="space">🚀 Deep Space Hum</option>
-                <option value="rain">🌧️ Monsoon Rain</option>
-                <option value="binaural">🧠 Binaural Focus</option>
+                <option value="space">🚀 Deep Space Hum</option><option value="rain">🌧️ Monsoon Rain</option><option value="binaural">🧠 Binaural Focus</option>
             </select>
-            <button onclick="toggleAudioHub()" id="audio-btn" class="w-full bg-slate-900/80 hover:bg-slate-800 px-2 py-1.5 rounded text-xs text-slate-400 font-bold tracking-wider transition-all border border-slate-700 uppercase active:scale-95 focus:outline-none">
-                🎧 Audio: OFF
-            </button>
+            <button onclick="toggleAudioHub()" id="audio-btn" class="w-full bg-slate-900/80 hover:bg-slate-800 px-2 py-1.5 rounded text-xs text-slate-400 font-bold tracking-wider transition-all border border-slate-700 uppercase active:scale-95 focus:outline-none">🎧 Audio: OFF</button>
         </div>
     </div>
 
@@ -238,22 +202,17 @@
     <div id="quizModal" class="fixed inset-0 z-[100] bg-black/80 hidden flex-col items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 opacity-0">
         <div class="max-w-lg w-full bg-slate-900 border-2 border-neon-blue rounded-2xl p-6 shadow-[0_0_40px_rgba(56,189,248,0.3)] transform scale-95 transition-transform duration-300 relative max-h-[90vh] overflow-y-auto" id="quizContent">
             <button onclick="closeQuizModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl font-bold focus:outline-none">&times;</button>
-            
             <div class="flex items-center justify-between mb-4 mt-2">
-                <span class="text-xs font-bold uppercase tracking-widest text-slate-400" id="quizSubject">Subject</span>
+                <div class="flex gap-2 items-center">
+                    <span class="text-xs font-bold uppercase tracking-widest text-slate-400" id="quizSubject">Subject</span>
+                    <span class="text-[9px] bg-slate-800 text-neon-blue px-2 py-0.5 rounded-full border border-slate-600 font-bold" id="quizSessionStreak">Streak: 0</span>
+                </div>
                 <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-md border" id="quizBadge">Difficulty</span>
             </div>
-            
             <h3 class="text-xl font-semibold text-white mb-6 leading-relaxed" id="quizQuestion">Question?</h3>
             <div class="flex flex-col gap-3" id="quizOptions"></div>
-            
-            <div class="mt-4 text-center min-h-[24px]">
-                <p id="quizFeedback" class="text-sm font-bold animate-pulse"></p>
-            </div>
-            
-            <button onclick="openQuizModal()" id="quizNextBtn" class="hidden w-full mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-all shadow-md focus:outline-none">
-                Hit me with another one 🥊
-            </button>
+            <div class="mt-4 text-center min-h-[24px]"><p id="quizFeedback" class="text-sm font-bold animate-pulse"></p></div>
+            <button onclick="openQuizModal()" id="quizNextBtn" class="hidden w-full mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-all shadow-md focus:outline-none">Hit me with another one 🥊</button>
         </div>
     </div>
 
@@ -266,9 +225,7 @@
                 <p class="text-slate-400 text-sm mb-1 uppercase tracking-widest" id="rouletteSubject">Subject</p>
                 <p class="text-neon-blue font-bold text-2xl" id="rouletteChapter">Chapter Name</p>
             </div>
-            <button onclick="acceptRouletteChallenge()" id="rouletteBtn" class="w-full bg-neon-purple hover:bg-purple-500 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-lg focus:outline-none">
-                Challenge Accepted ⚔️
-            </button>
+            <button onclick="acceptRouletteChallenge()" id="rouletteBtn" class="w-full bg-neon-purple hover:bg-purple-500 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-lg focus:outline-none">Challenge Accepted ⚔️</button>
         </div>
     </div>
 
@@ -278,113 +235,233 @@
             <div class="text-6xl mb-4 animate-bounce">🚨</div>
             <h2 class="text-3xl font-extrabold text-white mb-4 uppercase tracking-widest">Are you crying?</h2>
             <p class="text-slate-300 mb-6">Listen here. The syllabus is crying because it has to face YOU. Put the coffee down, take a deep breath, and remember why you started.</p>
-            <div class="w-full bg-slate-800 rounded-xl p-4 mb-6 border border-slate-700">
-                <p class="text-neon-pink font-bold text-lg italic" id="motivationalQuote">"You don't drown by falling in the water; you drown by staying there."</p>
-            </div>
-            <button onclick="closePanicButton()" class="w-full bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-lg focus:outline-none">
-                I'm ready to destroy chapters now 😤
-            </button>
+            <div class="w-full bg-slate-800 rounded-xl p-4 mb-6 border border-slate-700"><p class="text-neon-pink font-bold text-lg italic" id="motivationalQuote">"You don't drown by falling in the water; you drown by staying there."</p></div>
+            <button onclick="closePanicButton()" class="w-full bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-lg focus:outline-none">I'm ready to destroy chapters now 😤</button>
         </div>
     </div>
 
     <!-- JavaScript Application Logic -->
     <script>
-        // --- 1. MULTIVERSE DATA ---
+        // --- 1. FULL MULTIVERSE SYLLABUS DATA ---
         const getFreshData = () => ({
             JEE: {
                 Physics: [
-                    { id: 'j_p1', name: 'Units & Dimensions', topics: 'Error analysis, Dimensional analysis', theory: false, practice: false, mock: false },
-                    { id: 'j_p2', name: 'Kinematics', topics: 'Projectile motion, Relative motion', theory: false, practice: false, mock: false },
-                    { id: 'j_p3', name: 'Laws of Motion', topics: 'FBDs, Pulley-string, Pseudo forces', theory: false, practice: false, mock: false },
-                    { id: 'j_p4', name: 'Work & Energy', topics: 'Work-Energy Theorem, Conservative forces', theory: false, practice: false, mock: false },
-                    { id: 'j_p5', name: 'Rotational Dynamics', topics: 'Moment of Inertia, Torque, Rolling', theory: false, practice: false, mock: false },
-                    { id: 'j_p6', name: 'Thermodynamics', topics: 'Carnot Engine, Laws of TD', theory: false, practice: false, mock: false },
-                    { id: 'j_p7', name: 'Electrostatics', topics: 'Gauss Law, Capacitance', theory: false, practice: false, mock: false }
+                    { id: 'j_p1', name: 'Physical World & Measurement', topics: 'Units, Dimensions, Errors', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p2', name: 'Kinematics', topics: 'Motion in 1D & 2D, Projectile, Relative', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p3', name: 'Laws of Motion', topics: 'Newton\'s Laws, Friction, Circular Motion', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p4', name: 'Work, Energy & Power', topics: 'Work-Energy Theorem, Collisions', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p5', name: 'System of Particles & Rotational', topics: 'COM, Moment of Inertia, Torque, Rolling', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p6', name: 'Gravitation', topics: 'Kepler\'s Laws, Escape Velocity, Satellites', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p7', name: 'Mechanical Properties of Solids', topics: 'Stress, Strain, Hooke\'s Law', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p8', name: 'Mechanical Properties of Fluids', topics: 'Pascal, Archimedes, Bernoulli, Viscosity', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p9', name: 'Thermal Properties of Matter', topics: 'Expansion, Calorimetry, Heat Transfer', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p10', name: 'Thermodynamics', topics: 'Laws of TD, Isothermal, Adiabatic processes', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p11', name: 'Kinetic Theory of Gases', topics: 'Ideal Gas, Equipartition of Energy', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p12', name: 'Oscillations', topics: 'SHM, Pendulums, Resonance', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p13', name: 'Waves', topics: 'Transverse/Longitudinal, Doppler Effect', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_p14', name: 'Electric Charges & Fields', topics: 'Coulomb\'s Law, Gauss\'s Law', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p15', name: 'Electrostatic Potential & Capacitance', topics: 'Potential, Dielectrics, Capacitors', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p16', name: 'Current Electricity', topics: 'Ohm\'s Law, Kirchhoff, Measuring Instruments', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p17', name: 'Moving Charges & Magnetism', topics: 'Biot-Savart, Ampere\'s Law, Cyclotron', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p18', name: 'Magnetism & Matter', topics: 'Earth\'s Magnetism, Para/Dia/Ferro', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p19', name: 'Electromagnetic Induction', topics: 'Faraday, Lenz, Self & Mutual Induction', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p20', name: 'Alternating Current', topics: 'LCR Circuits, Resonance, Transformers', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p21', name: 'Electromagnetic Waves', topics: 'EM Spectrum, Displacement Current', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p22', name: 'Ray Optics & Optical Instruments', topics: 'Reflection, Refraction, Lenses, Prisms', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p23', name: 'Wave Optics', topics: 'Huygens, YDSE, Diffraction, Polarization', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p24', name: 'Dual Nature of Radiation', topics: 'Photoelectric Effect, de Broglie', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p25', name: 'Atoms', topics: 'Rutherford, Bohr Model, Spectra', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p26', name: 'Nuclei', topics: 'Radioactivity, Fission, Fusion', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_p27', name: 'Semiconductor Electronics', topics: 'Diodes, Logic Gates, Transistors', theory: false, practice: false, mock: false, cls: 12 }
                 ],
                 Chemistry: [
-                    { id: 'j_c1', name: 'Mole Concept', topics: 'Stoichiometry, Limiting reagent', theory: false, practice: false, mock: false },
-                    { id: 'j_c2', name: 'Atomic Structure', topics: 'Quantum numbers, Aufbau', theory: false, practice: false, mock: false },
-                    { id: 'j_c3', name: 'Chemical Bonding', topics: 'VSEPR, Hybridization, MOT', theory: false, practice: false, mock: false },
-                    { id: 'j_c4', name: 'Thermodynamics', topics: 'Enthalpy, Entropy, Gibbs', theory: false, practice: false, mock: false },
-                    { id: 'j_c5', name: 'Organic: GOC', topics: 'Resonance, Inductive, Isomerism', theory: false, practice: false, mock: false }
+                    { id: 'j_c1', name: 'Some Basic Concepts of Chemistry', topics: 'Mole Concept, Stoichiometry', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c2', name: 'Structure of Atom', topics: 'Quantum Mechanics, Bohr, Orbitals', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c3', name: 'Classification of Elements', topics: 'Periodic Trends, Ionization, Radii', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c4', name: 'Chemical Bonding', topics: 'VSEPR, VBT, MOT, Hybridization', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c5', name: 'States of Matter', topics: 'Gas Laws, Ideal Gas, Real Gases', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c6', name: 'Thermodynamics', topics: 'Enthalpy, Entropy, Gibbs Energy', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c7', name: 'Equilibrium', topics: 'Chemical & Ionic Eq, Le Chatelier, pH', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c8', name: 'Redox Reactions', topics: 'Oxidation States, Balancing Eq', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c9', name: 'Hydrogen & s-Block', topics: 'Alkali/Alkaline Earth Metals, Properties', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c10', name: 'p-Block Elements (13 & 14)', topics: 'Boron, Carbon families', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c11', name: 'Organic Chem: Basic Principles', topics: 'GOC, Nomenclature, Isomerism, Effects', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c12', name: 'Hydrocarbons', topics: 'Alkanes, Alkenes, Alkynes, Aromatic', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c13', name: 'Environmental Chemistry', topics: 'Pollution, Global Warming', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_c14', name: 'Solid State', topics: 'Lattices, Unit Cells, Defects', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c15', name: 'Solutions', topics: 'Raoult\'s Law, Colligative Properties', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c16', name: 'Electrochemistry', topics: 'Nernst Eq, Conductance, Batteries', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c17', name: 'Chemical Kinetics', topics: 'Order, Rate Law, Arrhenius Eq', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c18', name: 'Surface Chemistry', topics: 'Adsorption, Colloids, Catalysis', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c19', name: 'General Principles of Isolation', topics: 'Metallurgy, Ellingham Diagram', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c20', name: 'p-Block Elements (15 to 18)', topics: 'N, O, Halogens, Noble Gases', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c21', name: 'd & f Block Elements', topics: 'Transition Metals, Lanthanoids', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c22', name: 'Coordination Compounds', topics: 'Ligands, CFT, Crystal Field Splitting', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c23', name: 'Haloalkanes & Haloarenes', topics: 'SN1, SN2, Elimination Reactions', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c24', name: 'Alcohols, Phenols & Ethers', topics: 'Preparation, Acidity, Reactions', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c25', name: 'Aldehydes, Ketones, Carboxylic', topics: 'Nucleophilic Addition, Acidity', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c26', name: 'Amines', topics: 'Basicity, Diazonium Salts', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c27', name: 'Biomolecules', topics: 'Carbs, Proteins, DNA/RNA', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_c28', name: 'Polymers & Chem in Everyday Life', topics: 'Addition/Condensation, Drugs', theory: false, practice: false, mock: false, cls: 12 }
                 ],
                 Mathematics: [
-                    { id: 'j_m1', name: 'Functions', topics: 'Domain/Range, Inverse functions', theory: false, practice: false, mock: false },
-                    { id: 'j_m2', name: 'Quadratic Equations', topics: 'Nature of roots, Location of roots', theory: false, practice: false, mock: false },
-                    { id: 'j_m3', name: 'Calculus: Limits', topics: 'L-Hopital, Squeeze theorem', theory: false, practice: false, mock: false },
-                    { id: 'j_m4', name: 'Vectors & 3D', topics: 'Triple Products, Shortest distance', theory: false, practice: false, mock: false },
-                    { id: 'j_m5', name: 'Coordinate Geo', topics: 'Conic Sections, Tangents/Normals', theory: false, practice: false, mock: false }
+                    { id: 'j_m1', name: 'Sets', topics: 'Subsets, Venn Diagrams, Operations', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m2', name: 'Relations & Functions (11th)', topics: 'Domain, Range, Standard Functions', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m3', name: 'Trigonometric Functions', topics: 'Identities, Equations, Solutions', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m4', name: 'Principle of Math Induction', topics: 'PMI basics', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m5', name: 'Complex Numbers & Quadratics', topics: 'Argand Plane, Roots, Modulus', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m6', name: 'Linear Inequalities', topics: 'Algebraic solutions, Graphs', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m7', name: 'Permutations & Combinations', topics: 'Arrangements, Selections, Formulae', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m8', name: 'Binomial Theorem', topics: 'Expansion, General Term', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m9', name: 'Sequences & Series', topics: 'AP, GP, AM, GM, Summation', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m10', name: 'Straight Lines', topics: 'Slope, Forms of Line, Distance', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m11', name: 'Conic Sections', topics: 'Circles, Parabola, Ellipse, Hyperbola', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m12', name: 'Intro to 3D Geometry', topics: 'Distance, Section Formula', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m13', name: 'Limits & Derivatives', topics: 'L-Hopital, Basic Differentiation', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m14', name: 'Mathematical Reasoning', topics: 'Statements, Logic', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m15', name: 'Statistics & Probability (11th)', topics: 'Variance, Standard Dev, Axiomatic Prob', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'j_m16', name: 'Relations & Functions (12th)', topics: 'Types, Composite, Inverse', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m17', name: 'Inverse Trigonometric', topics: 'Domain, Range, Properties', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m18', name: 'Matrices', topics: 'Operations, Transpose, Symmetric', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m19', name: 'Determinants', topics: 'Properties, Adjoint, Inverse, System of Eq', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m20', name: 'Continuity & Differentiability', topics: 'Chain Rule, Implicit, Rolle\'s, MVT', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m21', name: 'Application of Derivatives', topics: 'Rate, Tangent, Maxima/Minima', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m22', name: 'Integrals', topics: 'Indefinite, Definite, Properties', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m23', name: 'Application of Integrals', topics: 'Area under curves', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m24', name: 'Differential Equations', topics: 'Order, Degree, Variable Separable, Linear', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m25', name: 'Vector Algebra', topics: 'Dot, Cross, Triple Products', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m26', name: '3D Geometry (12th)', topics: 'Lines, Planes, Shortest Distance', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m27', name: 'Linear Programming', topics: 'Graphical Solution, Optimization', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'j_m28', name: 'Probability (12th)', topics: 'Conditional, Bayes\', Distributions', theory: false, practice: false, mock: false, cls: 12 }
                 ]
             },
             NEET: {
                 Physics: [
-                    { id: 'n_p1', name: 'Mechanics (Basics)', topics: 'Kinematics, NLM, Work Energy', theory: false, practice: false, mock: false },
-                    { id: 'n_p2', name: 'Fluids & Properties', topics: 'Viscosity, Surface Tension', theory: false, practice: false, mock: false },
-                    { id: 'n_p3', name: 'Optics', topics: 'Ray Optics, Microscopes, Telescopes', theory: false, practice: false, mock: false },
-                    { id: 'n_p4', name: 'Modern Physics', topics: 'Dual Nature, Atoms, Nuclei', theory: false, practice: false, mock: false }
+                    { id: 'n_p1', name: 'Physical World & Kinematics', topics: 'Units, Vectors, 1D & 2D Motion', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_p2', name: 'NLM & Work Energy', topics: 'Friction, Collisions, Power', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_p3', name: 'Rotational Motion', topics: 'Torque, Angular Momentum, Rolling', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_p4', name: 'Gravitation', topics: 'Kepler, Satellites, Potential', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_p5', name: 'Properties of Bulk Matter', topics: 'Solids, Fluids, Thermal Properties', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_p6', name: 'Thermodynamics & KTG', topics: 'Laws, Carnot, Gas Theory', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_p7', name: 'Oscillations & Waves', topics: 'SHM, Sound Waves, Doppler', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_p8', name: 'Electrostatics', topics: 'Charges, Fields, Potential, Capacitors', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_p9', name: 'Current Electricity', topics: 'Ohm\'s Law, Circuits, Heating Effect', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_p10', name: 'Magnetic Effects', topics: 'Moving Charges, Earth\'s Magnetism', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_p11', name: 'EMI & AC', topics: 'Faraday, Transformers, LCR', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_p12', name: 'Optics', topics: 'Ray (Mirrors/Lenses), Wave (Interference)', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_p13', name: 'Modern Physics', topics: 'Dual Nature, Atoms, Nuclei', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_p14', name: 'Semiconductors', topics: 'Diodes, Logic Gates', theory: false, practice: false, mock: false, cls: 12 }
                 ],
                 Chemistry: [
-                    { id: 'n_c1', name: 'Inorganic Trends', topics: 'S, P, D, F Blocks, Coordination', theory: false, practice: false, mock: false },
-                    { id: 'n_c2', name: 'Physical Chem', topics: 'Solutions, Electrochemistry, Kinetics', theory: false, practice: false, mock: false },
-                    { id: 'n_c3', name: 'Organic Reactions', topics: 'Hydrocarbons, Aldehydes, Amines', theory: false, practice: false, mock: false }
+                    { id: 'n_c1', name: 'Basic Concepts & Atomic Structure', topics: 'Mole, Quantum Numbers', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_c2', name: 'Periodic Table & Bonding', topics: 'Trends, VSEPR, MOT', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_c3', name: 'States of Matter & Thermo', topics: 'Gases, Enthalpy, Entropy', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_c4', name: 'Equilibrium & Redox', topics: 'Ionic Eq, Oxidation, Balancing', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_c5', name: 's-Block & p-Block (11th)', topics: 'Groups 1,2, 13,14', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_c6', name: 'Organic: GOC & Hydrocarbons', topics: 'Effects, Alkanes/Alkenes/Alkynes', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_c7', name: 'Solid State & Solutions', topics: 'Crystals, Raoult\'s, Colligative', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_c8', name: 'Electrochemistry & Kinetics', topics: 'Nernst, Batteries, Rate Law', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_c9', name: 'Surface Chem & Metallurgy', topics: 'Adsorption, Extraction', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_c10', name: 'p, d & f Block Elements', topics: 'Transition metals, Groups 15-18', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_c11', name: 'Coordination Compounds', topics: 'CFT, Isomerism, Ligands', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_c12', name: 'Organic Reactions (12th)', topics: 'Haloalkanes, Alcohols, Aldehydes, Amines', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_c13', name: 'Biomolecules & Polymers', topics: 'Carbs, Proteins, Drugs', theory: false, practice: false, mock: false, cls: 12 }
                 ],
                 Biology: [
-                    { id: 'n_b1', name: 'Human Physiology', topics: 'Digestion, Circulation, Nervous System', theory: false, practice: false, mock: false },
-                    { id: 'n_b2', name: 'Plant Physiology', topics: 'Photosynthesis, Respiration', theory: false, practice: false, mock: false },
-                    { id: 'n_b3', name: 'Genetics', topics: 'Mendelian, Molecular Basis of Inheritance', theory: false, practice: false, mock: false },
-                    { id: 'n_b4', name: 'Ecology', topics: 'Ecosystems, Biodiversity', theory: false, practice: false, mock: false },
-                    { id: 'n_b5', name: 'Cell Biology', topics: 'Cell Structure, Cell Cycle, Mitosis', theory: false, practice: false, mock: false }
+                    { id: 'n_b1', name: 'The Living World', topics: 'Taxonomy, Systematics', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b2', name: 'Biological Classification', topics: 'Monera, Protista, Fungi, Viruses', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b3', name: 'Plant Kingdom', topics: 'Algae, Bryo, Pterido, Gymno, Angio', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b4', name: 'Animal Kingdom', topics: 'Phyla classification, Chordates', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b5', name: 'Morphology of Flowering Plants', topics: 'Root, Stem, Leaf, Flower', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b6', name: 'Anatomy of Flowering Plants', topics: 'Tissues, Dicot vs Monocot anatomy', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b7', name: 'Structural Org in Animals', topics: 'Animal Tissues, Cockroach/Frog/Earthworm', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b8', name: 'Cell: The Unit of Life', topics: 'Organelles, Structure, Prokaryotic', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b9', name: 'Biomolecules', topics: 'Proteins, Enzymes, Lipids, Nucleic Acids', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b10', name: 'Cell Cycle and Cell Division', topics: 'Mitosis, Meiosis', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b11', name: 'Transport in Plants', topics: 'Osmosis, Transpiration, Phloem', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b12', name: 'Mineral Nutrition', topics: 'Macro/Micro nutrients, Nitrogen cycle', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b13', name: 'Photosynthesis', topics: 'Light/Dark reaction, C3/C4 pathways', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b14', name: 'Respiration in Plants', topics: 'Glycolysis, Krebs Cycle, ETS', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b15', name: 'Plant Growth and Development', topics: 'Hormones (Auxin, Gibberellins), Photoperiodism', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b16', name: 'Digestion and Absorption', topics: 'Alimentary Canal, Digestive Glands', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b17', name: 'Breathing and Exchange of Gases', topics: 'Respiratory organs, Volumes, Transport', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b18', name: 'Body Fluids and Circulation', topics: 'Blood, Heart, ECG, Cardiac Cycle', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b19', name: 'Excretory Products', topics: 'Nephron, Urine formation, Regulation', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b20', name: 'Locomotion and Movement', topics: 'Muscles, Skeleton, Joints', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b21', name: 'Neural Control & Coordination', topics: 'Neurons, CNS, PNS, Sensory Organs', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b22', name: 'Chemical Coordination', topics: 'Endocrine Glands, Hormones', theory: false, practice: false, mock: false, cls: 11 },
+                    { id: 'n_b23', name: 'Reproduction in Organisms', topics: 'Asexual, Sexual Modes', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b24', name: 'Sexual Reproduction in Plants', topics: 'Pollination, Fertilization, Embryo', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b25', name: 'Human Reproduction', topics: 'Male/Female systems, Menstrual Cycle', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b26', name: 'Reproductive Health', topics: 'Contraceptives, STD, Infertility', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b27', name: 'Principles of Inheritance', topics: 'Mendel, Linkage, Genetic Disorders', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b28', name: 'Molecular Basis of Inheritance', topics: 'DNA structure, Replication, Transcription', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b29', name: 'Evolution', topics: 'Origin of Life, Darwin, Hardy-Weinberg', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b30', name: 'Human Health and Disease', topics: 'Immunity, Pathogens, Cancer, HIV', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b31', name: 'Strategies for Enhancement', topics: 'Animal Husbandry, Plant Breeding', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b32', name: 'Microbes in Human Welfare', topics: 'Household, Industrial, Sewage', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b33', name: 'Biotech: Principles & Processes', topics: 'Recombinant DNA tech, Cloning', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b34', name: 'Biotech: Applications', topics: 'Agriculture, Medicine, Gene Therapy', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b35', name: 'Organisms and Populations', topics: 'Population Attributes, Interactions', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b36', name: 'Ecosystem', topics: 'Energy Flow, Pyramids, Succession', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b37', name: 'Biodiversity and Conservation', topics: 'Patterns, Loss, Conservation methods', theory: false, practice: false, mock: false, cls: 12 },
+                    { id: 'n_b38', name: 'Environmental Issues', topics: 'Pollution, Ozone, Deforestation', theory: false, practice: false, mock: false, cls: 12 }
                 ]
             },
             UPSC: {
                 Polity: [
-                    { id: 'u_p1', name: 'Const. Framework', topics: 'Making of Const, Preamble, Fund. Rights', theory: false, practice: false, mock: false },
-                    { id: 'u_p2', name: 'System of Govt', topics: 'Parliamentary System, Federal System', theory: false, practice: false, mock: false },
-                    { id: 'u_p3', name: 'Central & State Govt', topics: 'President, PM, Parliament, Governor', theory: false, practice: false, mock: false },
-                    { id: 'u_p4', name: 'Constitutional Bodies', topics: 'EC, UPSC, SPSC, Finance Commission', theory: false, practice: false, mock: false }
+                    { id: 'u_p1', name: 'Historical Background & Making', topics: 'Acts, Constituent Assembly', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_p2', name: 'Preamble & Territory', topics: 'Values, Citizenship', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_p3', name: 'Fund. Rights & DPSP', topics: 'Articles 12-35, Directive Principles', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_p4', name: 'Executive & Legislature', topics: 'President, Parliament, State Govt', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_p5', name: 'Judiciary', topics: 'SC, HC, Judicial Review, Activism', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_p6', name: 'Constitutional Bodies', topics: 'EC, UPSC, Finance Commission, CAG', theory: false, practice: false, mock: false, cls: 'Mains' },
+                    { id: 'u_p7', name: 'Governance & Social Justice', topics: 'NGOs, Welfare Schemes, Poverty', theory: false, practice: false, mock: false, cls: 'Mains' },
+                    { id: 'u_p8', name: 'International Relations', topics: 'Bilateral/Global groupings (WTO, UN)', theory: false, practice: false, mock: false, cls: 'Mains' }
                 ],
                 History: [
-                    { id: 'u_h1', name: 'Ancient India', topics: 'IVC, Vedic, Buddhism, Jainism, Mauryas', theory: false, practice: false, mock: false },
-                    { id: 'u_h2', name: 'Medieval India', topics: 'Delhi Sultanate, Mughals, Marathas', theory: false, practice: false, mock: false },
-                    { id: 'u_h3', name: 'Modern India', topics: 'British Conquest, Revolt 1857, Freedom Struggle', theory: false, practice: false, mock: false },
-                    { id: 'u_h4', name: 'Art & Culture', topics: 'Architecture, Paintings, Classical Dances', theory: false, practice: false, mock: false }
+                    { id: 'u_h1', name: 'Ancient India', topics: 'IVC, Vedic, Buddhism, Jainism, Mauryas', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_h2', name: 'Medieval India', topics: 'Delhi Sultanate, Mughals, Marathas', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_h3', name: 'Modern India (Struggle)', topics: 'British Expansion, Revolt 1857, Congress', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_h4', name: 'Art & Culture', topics: 'Architecture, Paintings, Classical Dances', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_h5', name: 'Post-Independence', topics: 'Consolidation, Reorganization', theory: false, practice: false, mock: false, cls: 'Mains' },
+                    { id: 'u_h6', name: 'World History', topics: 'Industrial Rev, World Wars, Cold War', theory: false, practice: false, mock: false, cls: 'Mains' }
                 ],
                 Geography: [
-                    { id: 'u_g1', name: 'Physical Geo', topics: 'Geomorphology, Climatology, Oceanography', theory: false, practice: false, mock: false },
-                    { id: 'u_g2', name: 'Indian Geo', topics: 'Drainage, Climate, Soils, Agriculture', theory: false, practice: false, mock: false },
-                    { id: 'u_g3', name: 'Human Geo', topics: 'Demographics, Migration, Settlements', theory: false, practice: false, mock: false }
+                    { id: 'u_g1', name: 'Physical Geography (World)', topics: 'Geomorphology, Climatology, Oceanography', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_g2', name: 'Indian Geography', topics: 'Physiography, Drainage, Climate, Vegetation', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_g3', name: 'Economic & Human Geo', topics: 'Resources, Industries, Demographics', theory: false, practice: false, mock: false, cls: 'Mains' },
+                    { id: 'u_g4', name: 'Disaster Management', topics: 'Earthquakes, Floods, Policy Framework', theory: false, practice: false, mock: false, cls: 'Mains' }
                 ],
                 Economy: [
-                    { id: 'u_e1', name: 'Macroeconomics', topics: 'GDP, Inflation, Banking, Monetary Policy', theory: false, practice: false, mock: false },
-                    { id: 'u_e2', name: 'External Sector', topics: 'BOP, FOREX, International Orgs (IMF, WTO)', theory: false, practice: false, mock: false },
-                    { id: 'u_e3', name: 'Public Finance', topics: 'Budgeting, Taxation, Fiscal Policy', theory: false, practice: false, mock: false }
+                    { id: 'u_e1', name: 'Macroeconomics & Banking', topics: 'National Income, RBI, Monetary Policy', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_e2', name: 'Public Finance & External', topics: 'Budget, Taxation, BOP, FOREX', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_e3', name: 'Sectors of Economy', topics: 'Agriculture, Industry, Services', theory: false, practice: false, mock: false, cls: 'Prelims' },
+                    { id: 'u_e4', name: 'Economic Development', topics: 'Planning, Inclusive Growth, Employment', theory: false, practice: false, mock: false, cls: 'Mains' },
+                    { id: 'u_e5', name: 'Agriculture (Mains Detail)', topics: 'Cropping patterns, PDS, Subsidies', theory: false, practice: false, mock: false, cls: 'Mains' },
+                    { id: 'u_e6', name: 'Infrastructure & Investment', topics: 'Energy, Ports, Roads, PPP Models', theory: false, practice: false, mock: false, cls: 'Mains' }
                 ]
             }
         });
 
         let ALL_EXAMS_DATA = getFreshData();
 
-        // --- QUIZ DB ---
         const QUIZ_DB = {
             JEE: [
                 { q: "A particle is projected at 45°. The kinetic energy at the highest point is...", options: ["Zero", "Half of initial", "Same as initial", "One fourth"], answer: 1, diff: "Easy", subj: "Physics" },
                 { q: "In a Carnot engine, if source temperature is infinite, efficiency is:", options: ["0", "1 (100%)", "Infinite", "Depends on sink"], answer: 1, diff: "Hard", subj: "Physics" },
                 { q: "Which of the following is the most stable carbocation?", options: ["Primary", "Secondary", "Tertiary", "Methyl"], answer: 2, diff: "Easy", subj: "Chemistry" },
-                { q: "Which effect operates via delocalization of pi electrons?", options: ["Inductive", "Electromeric", "Resonance / Mesomeric", "Hyperconjugation"], answer: 2, diff: "Hard", subj: "Chemistry" },
-                { q: "Value of limit x->0 (sin x)/x is:", options: ["0", "1", "Infinity", "Undefined"], answer: 1, diff: "Easy", subj: "Mathematics" },
-                { q: "If A and B are symmetric matrices of the same order, then AB - BA is a:", options: ["Symmetric matrix", "Skew-symmetric matrix", "Zero matrix", "Identity matrix"], answer: 1, diff: "Hard", subj: "Mathematics" }
+                { q: "Value of limit x->0 (sin x)/x is:", options: ["0", "1", "Infinity", "Undefined"], answer: 1, diff: "Easy", subj: "Mathematics" }
             ],
             NEET: [
                 { q: "Which cell organelle is known as the powerhouse of the cell?", options: ["Nucleus", "Mitochondria", "Ribosome", "Golgi"], answer: 1, diff: "Easy", subj: "Biology" },
                 { q: "What is the phenotypic ratio of a standard Mendelian dihybrid cross?", options: ["9:3:3:1", "3:1", "1:2:1", "1:1:1:1"], answer: 0, diff: "Hard", subj: "Biology" },
-                { q: "The dimensional formula of Planck's constant is same as:", options: ["Force", "Energy", "Angular Momentum", "Power"], answer: 2, diff: "Easy", subj: "Physics" },
-                { q: "Which of these is a secondary active transport mechanism?", options: ["Na+/K+ Pump", "SGLT1 (Glucose-Na+ symporter)", "GLUT4", "Aquaporins"], answer: 1, diff: "Hard", subj: "Biology" }
+                { q: "Which of these is a secondary active transport mechanism?", options: ["Na+/K+ Pump", "SGLT1 (symporter)", "GLUT4", "Aquaporins"], answer: 1, diff: "Hard", subj: "Biology" }
             ],
             UPSC: [
                 { q: "Which Article of the Indian Constitution deals with Right to Equality?", options: ["Article 14-18", "Article 19-22", "Article 23-24", "Article 25-28"], answer: 0, diff: "Easy", subj: "Polity" },
                 { q: "Who was the founder of the Maurya Empire?", options: ["Ashoka", "Bindusara", "Chandragupta Maurya", "Bimbisara"], answer: 2, diff: "Easy", subj: "History" },
-                { q: "The term 'Hindu rate of growth' was coined by:", options: ["Amartya Sen", "Raj Krishna", "Manmohan Singh", "Raghuram Rajan"], answer: 1, diff: "Hard", subj: "Economy" },
-                { q: "Which of the following is NOT a feature of the Indian Constitution?", options: ["Federalism", "Parliamentary Government", "Presidential Government", "Independence of Judiciary"], answer: 2, diff: "Easy", subj: "Polity" }
+                { q: "The term 'Hindu rate of growth' was coined by:", options: ["Amartya Sen", "Raj Krishna", "Manmohan Singh", "Raghuram Rajan"], answer: 1, diff: "Hard", subj: "Economy" }
             ]
         };
 
@@ -397,24 +474,9 @@
         ];
 
         const coachToasts = {
-            JEE: [
-                "Stop scrolling and solve that integration, Private! 😤",
-                "Your competitors are currently solving Irodov. What are you doing? 👀",
-                "Aesthetic websites don't clear JEE. Hard work does. Let's go! 🚀",
-                "Don't lie to yourself on those tracker boxes... I see you. 🤨"
-            ],
-            NEET: [
-                "NCERT Biology lines are literally gold. Go read them again! 📖",
-                "Your future patients are waiting. Stop procrastinating! 🩺",
-                "Are you sure you know that complete cycle? Revise it. 🧠",
-                "Don't lie to yourself on those tracker boxes... I see you. 🤨"
-            ],
-            UPSC: [
-                "Laxmikanth isn't going to memorize itself, Officer! 🦅",
-                "Mains answers require depth. Have you practiced writing today? ✍️",
-                "The nation needs bureaucrats, not procrastinators. Back to work! 🇮🇳",
-                "Don't lie to yourself on those tracker boxes... I see you. 🤨"
-            ]
+            JEE: ["Stop scrolling and solve that integration, Private! 😤", "Competitors are solving Irodov. What are you doing? 👀"],
+            NEET: ["NCERT Biology lines are gold. Go read them again! 📖", "Your future patients are waiting. Stop procrastinating! 🩺"],
+            UPSC: ["Laxmikanth isn't going to memorize itself, Officer! 🦅", "Mains answers require depth. Have you practiced writing today? ✍️"]
         };
 
         // --- STATE ---
@@ -422,9 +484,11 @@
         let syllabusData = ALL_EXAMS_DATA[currentExam];
         let currentTab = 'Dashboard';
         let tabs = ['Dashboard', ...Object.keys(syllabusData)];
+        let currentClassFilter = 'All'; 
         let chartInstances = {}; 
         let currentQuizQ = null;
         let rouletteTargetSubject = null;
+        let quizSessionScore = 0; // Added Session Score
 
         function initApp() {
             updateStreak();
@@ -440,8 +504,12 @@
             initDraggableTimer();
             updateUIForExam();
             initCoachToasts();
+            updateOrbColors(); // Set correct mood colors
             
             if(window.innerWidth < 768) { setTimeout(() => { toggleTimerSize(true); }, 500); }
+            
+            // Audio context requires user interaction. Adding a one-time global listener to prime it.
+            document.body.addEventListener('click', primeAudioContext, { once: true });
         }
 
         function updateStreak() {
@@ -451,8 +519,7 @@
             if (lastLogin !== today) {
                 let yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
                 if (lastLogin === yesterday.toDateString()) { currentStreak++; } else { currentStreak = 1; }
-                localStorage.setItem('astraStreak', currentStreak);
-                localStorage.setItem('astraLastLogin', today);
+                localStorage.setItem('astraStreak', currentStreak); localStorage.setItem('astraLastLogin', today);
             }
             document.getElementById('streak-counter').innerText = `${currentStreak} Day Streak`;
         }
@@ -461,7 +528,9 @@
             currentExam = document.getElementById('exam-selector').value;
             localStorage.setItem('astraCurrentExam', currentExam);
             updateAppDataPointer();
-            currentTab = 'Dashboard'; tabs = ['Dashboard', ...Object.keys(syllabusData)];
+            currentTab = 'Dashboard'; currentClassFilter = 'All'; 
+            tabs = ['Dashboard', ...Object.keys(syllabusData)];
+            updateOrbColors();
             updateUIForExam(); renderNav(); renderContent();
         }
 
@@ -471,11 +540,11 @@
             if(savedState) {
                 try {
                     const parsed = JSON.parse(savedState);
-                    for(let subj in parsed) {
-                        if(syllabusData[subj]) {
-                            parsed[subj].forEach(savedChap => {
-                                const target = syllabusData[subj].find(c => c.id === savedChap.id);
-                                if(target) { target.theory = savedChap.theory; target.practice = savedChap.practice; target.mock = savedChap.mock; }
+                    for(let subj in syllabusData) {
+                        if(parsed[subj]) {
+                            syllabusData[subj].forEach(target => {
+                                const savedChap = parsed[subj].find(c => c.id === target.id);
+                                if(savedChap) { target.theory = savedChap.theory; target.practice = savedChap.practice; target.mock = savedChap.mock; }
                             });
                         }
                     }
@@ -488,55 +557,39 @@
             if(currentTab === 'Dashboard') renderContent(); 
         }
 
-        // --- CLOUD BACKUP SYSTEM ☁️ ---
         window.backupData = function() {
             let backupObj = {};
-            Object.keys(ALL_EXAMS_DATA).forEach(exam => {
-                backupObj[exam] = JSON.parse(localStorage.getItem(`astraState_${exam}`)) || ALL_EXAMS_DATA[exam];
-            });
-            backupObj.streak = localStorage.getItem('astraStreak');
-            backupObj.lastLogin = localStorage.getItem('astraLastLogin');
-            
+            Object.keys(ALL_EXAMS_DATA).forEach(exam => { backupObj[exam] = JSON.parse(localStorage.getItem(`astraState_${exam}`)) || ALL_EXAMS_DATA[exam]; });
+            backupObj.streak = localStorage.getItem('astraStreak'); backupObj.lastLogin = localStorage.getItem('astraLastLogin');
             const backupStr = btoa(JSON.stringify(backupObj)); 
             if(navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(backupStr).then(() => {
-                    alert("☁️ Backup Code copied to clipboard! Save this text somewhere safe (like a notes app).");
-                }).catch(() => { prompt("☁️ Copy this Backup Code and save it somewhere safe:", backupStr); });
-            } else {
-                prompt("☁️ Copy this Backup Code and save it somewhere safe:", backupStr);
-            }
+                navigator.clipboard.writeText(backupStr).then(() => { alert("☁️ Backup Code copied to clipboard!"); }).catch(() => { prompt("☁️ Copy this Backup Code:", backupStr); });
+            } else { prompt("☁️ Copy this Backup Code:", backupStr); }
         };
 
         window.restoreData = function() {
-            const backupStr = prompt("📥 Paste your Backup Code here to restore progress:");
+            const backupStr = prompt("📥 Paste your Backup Code here:");
             if(!backupStr) return;
             try {
                 const parsed = JSON.parse(atob(backupStr));
-                Object.keys(ALL_EXAMS_DATA).forEach(exam => {
-                    if(parsed[exam]) { localStorage.setItem(`astraState_${exam}`, JSON.stringify(parsed[exam])); }
-                });
-                if(parsed.streak) localStorage.setItem('astraStreak', parsed.streak);
-                if(parsed.lastLogin) localStorage.setItem('astraLastLogin', parsed.lastLogin);
-                
-                location.reload(); // Hard reset to guarantee state wipe and reload
-            } catch(e) {
-                alert("❌ Invalid Backup Code. Are you sure you copied it correctly?");
-            }
+                Object.keys(ALL_EXAMS_DATA).forEach(exam => { if(parsed[exam]) { localStorage.setItem(`astraState_${exam}`, JSON.stringify(parsed[exam])); } });
+                if(parsed.streak) localStorage.setItem('astraStreak', parsed.streak); if(parsed.lastLogin) localStorage.setItem('astraLastLogin', parsed.lastLogin);
+                location.reload(); 
+            } catch(e) { alert("❌ Invalid Backup Code."); }
         };
 
         window.nukeDatabase = function() {
             if(confirm("⚠️ ARE YOU SURE? This will wipe your progress for ALL exams entirely. This cannot be undone!")) {
-                localStorage.clear();
-                location.reload(); // Factory reset the browser cache
+                localStorage.clear(); location.reload(); 
             }
         };
 
         function updateUIForExam() {
             const titleEl = document.getElementById('app-title'); const emojiEl = document.getElementById('app-emoji');
             const footerEl = document.getElementById('footer-text'); const rouletteEl = document.getElementById('rouletteTitle');
-            if(currentExam === 'JEE') { titleEl.innerText = "JEE Astra"; emojiEl.innerText = "🚀"; footerEl.innerText = "Stay Hard. IIT Bombay is waiting for you, boss! 🔥"; rouletteEl.innerText = "NTA Demands You Study:"; } 
-            else if(currentExam === 'NEET') { titleEl.innerText = "NEET Astra"; emojiEl.innerText = "🩺"; footerEl.innerText = "Stay Hard. AIIMS Delhi is waiting for you, Doc! 💉"; rouletteEl.innerText = "NTA Demands You Study:"; } 
-            else if(currentExam === 'UPSC') { titleEl.innerText = "UPSC Astra"; emojiEl.innerText = "🇮🇳"; footerEl.innerText = "Stay Hard. LBSNAA Mussoorie is waiting for you, Officer! 🦅"; rouletteEl.innerText = "UPSC Demands You Revise:"; }
+            if(currentExam === 'JEE') { titleEl.innerText = "JEE Astra"; emojiEl.innerText = "🚀"; footerEl.innerText = "Stay Hard. IIT Bombay is waiting! 🔥"; rouletteEl.innerText = "NTA Demands You Study:"; } 
+            else if(currentExam === 'NEET') { titleEl.innerText = "NEET Astra"; emojiEl.innerText = "🩺"; footerEl.innerText = "Stay Hard. AIIMS is waiting! 💉"; rouletteEl.innerText = "NTA Demands You Study:"; } 
+            else if(currentExam === 'UPSC') { titleEl.innerText = "UPSC Astra"; emojiEl.innerText = "🇮🇳"; footerEl.innerText = "Stay Hard. LBSNAA is waiting! 🦅"; rouletteEl.innerText = "UPSC Demands You Revise:"; }
         }
 
         function calculateStats() {
@@ -564,7 +617,12 @@
             }
         }
 
-        function setTab(tabName) { currentTab = tabName; renderNav(); renderContent(); window.scrollTo(0,0); }
+        function setTab(tabName) { currentTab = tabName; currentClassFilter = 'All'; renderNav(); renderContent(); window.scrollTo(0,0); }
+        
+        window.setClassFilter = function(filterVal) {
+            currentClassFilter = filterVal;
+            renderContent();
+        }
 
         function renderNav() {
             const navContainer = document.getElementById('nav-buttons'); navContainer.innerHTML = '';
@@ -593,14 +651,14 @@
             const percentComplete = Math.round((stats.overallScore / stats.totalChapters) * 100) || 0;
             const title = getTitle(percentComplete);
 
-            let sassMessage = "Get to work, you have a lot of ground to cover! 🏃‍♂️💨";
-            if (percentComplete > 20) sassMessage = "Okay, you've started. Don't stop now, momentum is everything! 📈";
-            if (percentComplete > 50) sassMessage = "Halfway there! The competition is sweating, but so are you. Push harder! 💦";
-            if (percentComplete > 80) sassMessage = "Absolute menace behavior. You are dangerously close to Rank 1. 😈🔥";
-
-            let subjectChartsHTML = ''; const colors = ['#38bdf8', '#c084fc', '#f472b6', '#4ade80']; let colorIdx = 0;
+            let subjectChartsHTML = ''; const colors = ['#38bdf8', '#c084fc', '#f472b6', '#4ade80', '#fb923c']; let colorIdx = 0;
             const numSubjects = Object.keys(stats.subjects).length;
-            const gridColsClass = numSubjects === 4 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-3';
+            
+            // Perfectly bulletproof tailwind grid strings
+            let gridColsClass = 'grid-cols-1 md:grid-cols-3';
+            if(numSubjects === 2) gridColsClass = 'grid-cols-2 md:grid-cols-2';
+            else if(numSubjects === 4) gridColsClass = 'grid-cols-2 md:grid-cols-4';
+            else if(numSubjects > 4) gridColsClass = 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5';
 
             Object.keys(stats.subjects).forEach(subj => {
                 const score = stats.subjects[subj].score; const total = stats.subjects[subj].total; const pct = Math.round((score / total) * 100) || 0; const color = colors[colorIdx % colors.length];
@@ -620,18 +678,10 @@
                         <div class="flex-1">
                             <h2 class="text-2xl font-bold text-white mb-2">Welcome to the War Room 🎯</h2>
                             <p class="text-slate-400 text-sm leading-relaxed mb-4">Current Status: <span class="text-neon-pink font-bold">${title}</span>. Balance Theory (📖), Practice (✍️), and Mocks (🎯).</p>
-                            <div class="bg-slate-900/80 border-l-4 border-yellow-500 p-3 rounded text-sm text-slate-300 italic">
-                                <span class="text-yellow-500 font-bold">Coach says:</span> ${sassMessage}
-                            </div>
                         </div>
-                        <div class="w-full md:w-auto md:min-w-[220px] flex flex-col gap-2">
-                            <button onclick="playNTARoulette()" class="w-full bg-slate-800 border border-slate-600 hover:bg-slate-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition-transform transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 focus:outline-none">
-                                <span>🎲</span> Mission Roulette
-                            </button>
-                            <button onclick="openQuizModal()" class="w-full bg-gradient-to-r from-neon-blue to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-[0_0_15px_rgba(56,189,248,0.4)] transition-transform transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 focus:outline-none">
-                                <span>🧠</span> Test Your Might
-                            </button>
-                            <p class="text-[9px] text-center text-slate-500 mt-1 uppercase tracking-widest">Random Difficulty</p>
+                        <div class="w-full md:w-auto md:min-w-[220px] flex flex-col gap-2 relative z-10">
+                            <button onclick="playNTARoulette()" class="w-full bg-slate-800 border border-slate-600 hover:bg-slate-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition-transform transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 focus:outline-none"><span>🎲</span> Mission Roulette</button>
+                            <button onclick="openQuizModal()" class="w-full bg-gradient-to-r from-neon-blue to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-[0_0_15px_rgba(56,189,248,0.4)] transition-transform transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 focus:outline-none"><span>🧠</span> Test Your Might</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -646,7 +696,7 @@
                     </div>
                     <div class="glass-panel p-4 rounded-xl">
                         <div class="flex justify-between items-center mb-2"><span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Global XP Tracker</span><span class="text-xs text-white font-bold">${percentComplete}%</span></div>
-                        <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden shadow-inner border border-slate-700">
+                        <div class="w-full bg-slate-900 rounded-full h-2 shadow-inner border border-slate-700 shimmer-bar">
                             <div class="bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink h-2 rounded-full transition-all duration-1000 ease-out" style="width: ${percentComplete}%"></div>
                         </div>
                     </div>
@@ -665,6 +715,10 @@
 
         function initDashboardCharts() {
             const stats = calculateStats(); Chart.defaults.color = '#94a3b8'; Chart.defaults.font.family = 'Inter, sans-serif';
+            
+            // Shared Tooltip Styling
+            const tooltipConfig = { backgroundColor: 'rgba(15, 23, 42, 0.95)', titleColor: '#fff', bodyColor: '#cbd5e1', borderColor: 'rgba(71, 85, 105, 0.8)', borderWidth: 1, padding: 10, cornerRadius: 8 };
+
             const ctxPhase = document.getElementById('phaseChart').getContext('2d');
             chartInstances['phase'] = new Chart(ctxPhase, {
                 type: 'bar',
@@ -675,39 +729,58 @@
                         backgroundColor: ['rgba(56, 189, 248, 0.6)', 'rgba(192, 132, 252, 0.6)', 'rgba(244, 114, 182, 0.6)'], borderColor: ['#38bdf8', '#c084fc', '#f472b6'], borderWidth: 1, borderRadius: 6, hoverBackgroundColor: ['rgba(56, 189, 248, 0.9)', 'rgba(192, 132, 252, 0.9)', 'rgba(244, 114, 182, 0.9)']
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: stats.totalChapters, grid: { color: 'rgba(51, 65, 85, 0.3)' } }, x: { grid: { display: false } } }, animation: { y: { duration: 1500, easing: 'easeOutElastic' } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipConfig }, scales: { y: { beginAtZero: true, max: stats.totalChapters, grid: { color: 'rgba(51, 65, 85, 0.3)' } }, x: { grid: { display: false } } }, animation: { y: { duration: 1500, easing: 'easeOutElastic' } } }
             });
-            const colors = ['#38bdf8', '#c084fc', '#f472b6', '#4ade80']; let colorIdx = 0;
+
+            const colors = ['#38bdf8', '#c084fc', '#f472b6', '#4ade80', '#fb923c']; let colorIdx = 0;
             Object.keys(stats.subjects).forEach(subj => {
                 const ctx = document.getElementById(`chart_${subj}`).getContext('2d'); const score = stats.subjects[subj].score; const total = stats.subjects[subj].total;
                 chartInstances[`chart_${subj}`] = new Chart(ctx, {
                     type: 'doughnut', data: { labels: ['Mastered', 'Remaining'], datasets: [{ data: [score, total - score], backgroundColor: [colors[colorIdx % colors.length], 'rgba(30, 41, 59, 1)'], borderColor: 'rgba(15, 23, 42, 1)', borderWidth: 2, cutout: '70%', hoverOffset: 4 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: true } }, animation: { animateRotate: true, animateScale: true } }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipConfig }, animation: { animateRotate: true, animateScale: true } }
                 }); colorIdx++;
             });
         }
 
         function generateSubjectHTML(subject) {
-            const data = syllabusData[subject];
+            let data = syllabusData[subject];
+            if(currentClassFilter !== 'All') data = data.filter(chap => chap.cls == currentClassFilter);
+
             const colorClasses = [ {text: 'text-neon-blue', border: 'border-neon-blue', bg: 'bg-neon-blue/20'}, {text: 'text-neon-purple', border: 'border-neon-purple', bg: 'bg-neon-purple/20'}, {text: 'text-neon-pink', border: 'border-neon-pink', bg: 'bg-neon-pink/20'}, {text: 'text-neon-green', border: 'border-neon-green', bg: 'bg-neon-green/20'}, {text: 'text-neon-orange', border: 'border-neon-orange', bg: 'bg-neon-orange/20'} ];
             const subjIndex = Object.keys(syllabusData).indexOf(subject); const accent = colorClasses[subjIndex % colorClasses.length];
+
+            let filterUI = '';
+            if(currentExam === 'UPSC') {
+                filterUI = `<button onclick="setClassFilter('All')" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==='All'?'active':''}">All Phases</button><button onclick="setClassFilter('Prelims')" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==='Prelims'?'active':''}">Prelims</button><button onclick="setClassFilter('Mains')" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==='Mains'?'active':''}">Mains</button>`;
+            } else {
+                filterUI = `<button onclick="setClassFilter('All')" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==='All'?'active':''}">Full Syllabus</button><button onclick="setClassFilter(11)" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==11?'active':''}">Class 11</button><button onclick="setClassFilter(12)" class="filter-pill px-4 py-1.5 rounded-full border border-slate-600 text-xs text-slate-400 hover:text-white ${currentClassFilter==12?'active':''}">Class 12</button>`;
+            }
 
             let html = `
                 <div class="space-y-6 animate-fade-in">
                     <div class="glass-panel p-6 rounded-2xl border-l-4 ${accent.border} relative overflow-hidden">
                         <div class="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-${accent.border.replace('border-','')} to-transparent opacity-10 pointer-events-none"></div>
-                        <h2 class="text-2xl font-bold text-white mb-2">Subject Tracker: <span class="${accent.text}">${subject}</span></h2>
-                        <p class="text-slate-400 text-sm leading-relaxed">Granular tracking for all core topics. <strong>Rules:</strong> Do not mark <span class="text-slate-200">Practice</span> until you've solved 50+ standard questions (or written 2 Mains answers for UPSC). Do not mark <span class="text-slate-200">Mocks</span> until tested under time constraint. Honesty reflects rank! 😤</p>
+                        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4 relative z-10">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white mb-2">Subject Tracker: <span class="${accent.text}">${subject}</span></h2>
+                                <p class="text-slate-400 text-xs max-w-xl">Granular tracking. <strong>Rules:</strong> Don't mark <span class="text-slate-200">Practice</span> without 50+ solved Qs. Don't mark <span class="text-slate-200">Mocks</span> without time limits.</p>
+                            </div>
+                            <div class="flex gap-2 flex-wrap">${filterUI}</div>
+                        </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
 
+            if(data.length === 0) html += `<div class="col-span-full text-center py-10 text-slate-500">No chapters found for this filter. 🤷‍♂️</div>`;
+
             data.forEach((chap, index) => {
                 const isFullyMastered = chap.theory && chap.practice && chap.mock;
+                const clsTag = currentExam === 'UPSC' ? chap.cls : `Class ${chap.cls}`;
                 html += `
                     <div class="bg-slate-800/60 border ${isFullyMastered ? `border-${accent.border.replace('border-','')} shadow-[0_0_15px_rgba(0,0,0,0.5)]` : 'border-slate-700/50'} rounded-xl p-5 hover:bg-slate-800 transition-all duration-300 flex flex-col justify-between tilt-card relative overflow-hidden group">
-                        ${isFullyMastered ? `<div class="absolute top-0 right-0 w-8 h-8 flex items-center justify-center ${accent.bg} rounded-bl-xl text-xs" title="Mastered!">👑</div>` : ''}
+                        ${isFullyMastered ? `<div class="absolute top-0 right-0 w-8 h-8 flex items-center justify-center ${accent.bg} rounded-bl-xl text-xs shadow-inner" title="Mastered!">👑</div>` : ''}
                         <div class="mb-4">
-                            <div class="flex justify-between items-start mb-2"><h4 class="text-base font-bold text-white leading-tight group-hover:${accent.text} transition-colors"><span class="text-slate-500 mr-1 opacity-50">#${index+1}</span> ${chap.name}</h4></div>
+                            <div class="flex justify-between items-start mb-2"><h4 class="text-base font-bold text-white leading-tight group-hover:${accent.text} transition-colors pr-6"><span class="text-slate-500 mr-1 opacity-50">#${index+1}</span> ${chap.name}</h4></div>
+                            <div class="flex items-center gap-2 mb-1"><span class="text-[9px] uppercase tracking-widest font-bold text-slate-500 bg-slate-900 px-2 py-0.5 rounded border border-slate-700">${clsTag}</span></div>
                             <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed" title="${chap.topics}">${chap.topics}</p>
                         </div>
                         <div class="flex items-center justify-between bg-slate-900/80 p-1.5 rounded-lg border border-slate-800/80 mt-auto">
@@ -726,29 +799,40 @@
             html += `</div></div>`; return html;
         }
 
-        // NEW: LEVEL UP AUDIO ✨
+        // --- LEVEL UP AUDIO ✨ ---
         function playLevelUp() {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                osc.type = 'sine'; osc.frequency.setValueAtTime(440, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1); osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.1); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-                osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.5);
+                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.type = 'sine'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
             } catch(e) {}
         }
 
+        // Prime Audio Context safely
+        function primeAudioContext() {
+            if(!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if(audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
         window.togglePhase = function(subject, chapterId, phase, event) {
-            const chapter = syllabusData[subject].find(c => c.id === chapterId);
+            primeAudioContext(); // Ensure audio is ready
+            const fullSubjectData = syllabusData[subject]; 
+            const chapter = fullSubjectData.find(c => c.id === chapterId);
             if(chapter) {
                 const wasMastered = chapter.theory && chapter.practice && chapter.mock;
                 chapter[phase] = !chapter[phase]; saveState();
                 const isMasteredNow = chapter.theory && chapter.practice && chapter.mock;
                 
                 if (!wasMastered && isMasteredNow) {
-                    // Bulletproof Confetti logic with fallbacks to screen center!
-                    let clientX = window.innerWidth / 2; 
-                    let clientY = window.innerHeight / 2;
+                    let clientX = window.innerWidth / 2; let clientY = window.innerHeight / 2;
                     if (event) {
                         if (event.touches && event.touches.length > 0) { clientX = event.touches[0].clientX; clientY = event.touches[0].clientY; }
                         else if (event.clientX) { clientX = event.clientX; clientY = event.clientY; }
@@ -766,6 +850,8 @@
             const questions = QUIZ_DB[currentExam] || QUIZ_DB['JEE'];
             currentQuizQ = questions[Math.floor(Math.random() * questions.length)];
             document.getElementById('quizSubject').innerText = currentQuizQ.subj; document.getElementById('quizQuestion').innerText = currentQuizQ.q;
+            document.getElementById('quizSessionStreak').innerText = `Score: ${quizSessionScore}`;
+            
             const badge = document.getElementById('quizBadge'); badge.innerText = currentQuizQ.diff;
             badge.className = currentQuizQ.diff === 'Hard' ? 'px-2 py-1 text-[10px] font-bold uppercase rounded-md border bg-red-500/20 text-red-400 border-red-500' : 'px-2 py-1 text-[10px] font-bold uppercase rounded-md border bg-green-500/20 text-green-400 border-green-500';
             const optsContainer = document.getElementById('quizOptions'); optsContainer.innerHTML = '';
@@ -784,8 +870,17 @@
                 else if (i === selectedIdx && selectedIdx !== correctIdx) { btn.classList.replace('bg-slate-800', 'bg-red-600/80'); btn.classList.replace('border-slate-600', 'border-red-400'); btn.classList.replace('text-slate-300', 'text-white'); } 
                 else { btn.classList.add('opacity-50'); }
             }
-            if(selectedIdx === correctIdx) { feedback.innerHTML = '<span class="text-green-400 text-lg">✅ Let\'s GO! The examiner is crying.</span>'; confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 }, zIndex: 1000 }); } 
-            else { feedback.innerHTML = '<span class="text-red-400 text-lg">🤡 Bruh... Time to revise some theory.</span>'; }
+            if(selectedIdx === correctIdx) { 
+                quizSessionScore++;
+                document.getElementById('quizSessionStreak').innerText = `Score: ${quizSessionScore}`;
+                feedback.innerHTML = '<span class="text-green-400 text-lg">✅ Let\'s GO! The examiner is crying.</span>'; 
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 }, zIndex: 1000 }); 
+            } 
+            else { 
+                quizSessionScore = 0; // Reset score on failure
+                document.getElementById('quizSessionStreak').innerText = `Score: ${quizSessionScore}`;
+                feedback.innerHTML = '<span class="text-red-400 text-lg">🤡 Bruh... Time to revise some theory.</span>'; 
+            }
             document.getElementById('quizNextBtn').classList.remove('hidden');
         };
         window.closeQuizModal = function() {
@@ -827,130 +922,81 @@
         let timerInterval; let baseTime = 25 * 60; let timeLeft = baseTime; let isTimerRunning = false; let isGrindMode = true; 
 
         window.toggleTimerSize = function(forceMinimize = false) {
-            const controls = document.getElementById('timer-controls');
-            const timerEl = document.getElementById('floating-timer');
-            const displayEl = document.getElementById('timer-display');
-            const iconEl = document.getElementById('timer-size-icon');
-            const miniBtn = document.getElementById('mini-timer-btn');
-            const modeEl = document.getElementById('timer-mode');
-
+            const controls = document.getElementById('timer-controls'); const timerEl = document.getElementById('floating-timer'); const displayEl = document.getElementById('timer-display'); const iconEl = document.getElementById('timer-size-icon'); const miniBtn = document.getElementById('mini-timer-btn'); const modeEl = document.getElementById('timer-mode');
             if(controls.classList.contains('hidden') && !forceMinimize) {
-                controls.classList.remove('hidden'); miniBtn.classList.add('hidden');
-                timerEl.classList.add('w-56', 'p-4'); timerEl.classList.remove('w-auto', 'p-2', 'pl-4');
-                displayEl.classList.add('text-4xl'); displayEl.classList.remove('text-2xl');
-                iconEl.innerText = '➖'; modeEl.innerText = isGrindMode ? "Grind Phase 🧠" : "Cry Phase 😭";
+                controls.classList.remove('hidden'); miniBtn.classList.add('hidden'); timerEl.classList.add('w-56', 'p-4'); timerEl.classList.remove('w-auto', 'p-2', 'pl-4'); displayEl.classList.add('text-4xl'); displayEl.classList.remove('text-2xl'); iconEl.innerText = '➖'; modeEl.innerText = isGrindMode ? "Grind Phase 🧠" : "Cry Phase 😭";
             } else {
-                controls.classList.add('hidden'); miniBtn.classList.remove('hidden');
-                timerEl.classList.remove('w-56', 'p-4'); timerEl.classList.add('w-auto', 'p-2', 'pl-4');
-                displayEl.classList.remove('text-4xl'); displayEl.classList.add('text-2xl');
-                iconEl.innerText = '➕'; modeEl.innerText = isGrindMode ? "🧠" : "😭"; 
+                controls.classList.add('hidden'); miniBtn.classList.remove('hidden'); timerEl.classList.remove('w-56', 'p-4'); timerEl.classList.add('w-auto', 'p-2', 'pl-4', 'pr-3'); displayEl.classList.remove('text-4xl'); displayEl.classList.add('text-2xl'); iconEl.innerText = '➕'; modeEl.innerText = isGrindMode ? "🧠" : "😭"; 
             }
         };
 
-        function updateTimerLength() {
-            if(isTimerRunning) return alert("Pause timer to change length!");
-            const sel = document.getElementById('pomodoro-settings').value; baseTime = parseInt(sel) * 60; if(isGrindMode) timeLeft = baseTime;
-            updateTimerDisplay();
-        }
-        function updateTimerDisplay() {
-            const mins = Math.floor(timeLeft / 60); const secs = timeLeft % 60;
-            document.getElementById('timer-display').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
+        function updateTimerLength() { if(isTimerRunning) return alert("Pause timer to change length!"); const sel = document.getElementById('pomodoro-settings').value; baseTime = parseInt(sel) * 60; if(isGrindMode) timeLeft = baseTime; updateTimerDisplay(); }
+        function updateTimerDisplay() { const mins = Math.floor(timeLeft / 60); const secs = timeLeft % 60; document.getElementById('timer-display').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`; }
+        
         window.toggleTimer = function() {
+            primeAudioContext();
             const btn = document.getElementById('timer-btn'); const miniBtn = document.getElementById('mini-timer-btn');
             if(isTimerRunning) {
                 clearInterval(timerInterval);
-                btn.innerHTML = '▶️ Start'; btn.classList.replace('bg-red-600', 'bg-slate-700'); btn.classList.replace('text-white', 'text-slate-200');
-                miniBtn.innerHTML = '▶️'; miniBtn.classList.remove('text-red-400');
+                btn.innerHTML = '▶️ Start'; btn.classList.replace('bg-red-600', 'bg-slate-700'); btn.classList.replace('text-white', 'text-slate-200'); miniBtn.innerHTML = '▶️'; miniBtn.classList.remove('text-red-400');
             } else {
-                btn.innerHTML = '⏸️ Pause'; btn.classList.replace('bg-slate-700', 'bg-red-600'); btn.classList.replace('text-slate-200', 'text-white');
-                miniBtn.innerHTML = '⏸️'; miniBtn.classList.add('text-red-400');
+                btn.innerHTML = '⏸️ Pause'; btn.classList.replace('bg-slate-700', 'bg-red-600'); btn.classList.replace('text-slate-200', 'text-white'); miniBtn.innerHTML = '⏸️'; miniBtn.classList.add('text-red-400');
                 timerInterval = setInterval(() => {
                     timeLeft--; updateTimerDisplay();
                     if(timeLeft <= 0) {
-                        clearInterval(timerInterval); playAlarm(); alert(isGrindMode ? "Grind over! Take a break." : "Break over! Back to the mines.");
-                        switchTimerMode();
+                        clearInterval(timerInterval); playLevelUp(); alert(isGrindMode ? "Grind over! Take a break." : "Break over! Back to the mines."); switchTimerMode();
                     }
                 }, 1000);
             }
             isTimerRunning = !isTimerRunning;
         };
+
         window.switchTimerMode = function() {
-            if(isTimerRunning) toggleTimer(); 
-            isGrindMode = !isGrindMode; timeLeft = isGrindMode ? baseTime : 5 * 60;
-            const modeEl = document.getElementById('timer-mode'); const displayEl = document.getElementById('timer-display');
-            const isMini = document.getElementById('timer-controls').classList.contains('hidden');
-            if(isGrindMode) { 
-                modeEl.innerText = isMini ? "🧠" : "Grind Phase 🧠"; 
-                displayEl.className = `font-mono font-extrabold text-neon-blue drop-shadow-[0_0_8px_rgba(56,189,248,0.5)] transition-all duration-300 pointer-events-none ${isMini ? 'text-2xl' : 'text-4xl'}`; 
-            } else { 
-                modeEl.innerText = isMini ? "😭" : "Cry Phase (Break) 😭"; 
-                displayEl.className = `font-mono font-extrabold text-neon-pink drop-shadow-[0_0_8px_rgba(244,114,182,0.5)] transition-all duration-300 pointer-events-none ${isMini ? 'text-2xl' : 'text-4xl'}`; 
-            }
+            if(isTimerRunning) toggleTimer(); isGrindMode = !isGrindMode; timeLeft = isGrindMode ? baseTime : 5 * 60;
+            const modeEl = document.getElementById('timer-mode'); const displayEl = document.getElementById('timer-display'); const isMini = document.getElementById('timer-controls').classList.contains('hidden');
+            if(isGrindMode) { modeEl.innerText = isMini ? "🧠" : "Grind Phase 🧠"; displayEl.className = `font-mono font-extrabold text-neon-blue drop-shadow-[0_0_8px_rgba(56,189,248,0.5)] transition-all duration-300 pointer-events-none tabular-nums tracking-tight ${isMini ? 'text-2xl' : 'text-4xl'}`; } 
+            else { modeEl.innerText = isMini ? "😭" : "Cry Phase (Break) 😭"; displayEl.className = `font-mono font-extrabold text-neon-pink drop-shadow-[0_0_8px_rgba(244,114,182,0.5)] transition-all duration-300 pointer-events-none tabular-nums tracking-tight ${isMini ? 'text-2xl' : 'text-4xl'}`; }
             updateTimerDisplay();
         };
 
         // --- ENHANCED AUDIO HUB ---
-        let audioCtx, currentNodes = []; let isAudioPlaying = false;
+        let currentNodes = []; let isAudioPlaying = false;
         function stopCurrentAudio() { currentNodes.forEach(node => { try{node.stop()}catch(e){} try{node.disconnect()}catch(e){} }); currentNodes = []; }
-        window.changeAudioType = function() { if(isAudioPlaying) { audioCtx.suspend(); stopCurrentAudio(); startSynth(); audioCtx.resume(); } }
+        window.changeAudioType = function() { if(isAudioPlaying) { primeAudioContext(); audioCtx.suspend(); stopCurrentAudio(); startSynth(); audioCtx.resume(); } }
         function startSynth() {
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            primeAudioContext();
             const type = document.getElementById('audio-type').value;
-            if(type === 'space') {
-                const bufferSize = 2 * audioCtx.sampleRate; const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const output = noiseBuffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
-                const noise = audioCtx.createBufferSource(); noise.buffer = noiseBuffer; noise.loop = true;
-                const filter = audioCtx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 200;
-                const gain = audioCtx.createGain(); gain.gain.value = 0.8;
-                noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-                noise.start(0); currentNodes.push(noise, filter, gain);
-            } else if(type === 'rain') {
-                const bufferSize = 2 * audioCtx.sampleRate; const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const output = noiseBuffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
-                const noise = audioCtx.createBufferSource(); noise.buffer = noiseBuffer; noise.loop = true;
-                const filter = audioCtx.createBiquadFilter(); filter.type = "bandpass"; filter.frequency.value = 1000; filter.Q.value = 0.5;
-                const gain = audioCtx.createGain(); gain.gain.value = 0.3;
-                noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-                noise.start(0); currentNodes.push(noise, filter, gain);
-            } else if (type === 'binaural') {
-                const osc1 = audioCtx.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = 200; 
-                const osc2 = audioCtx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = 210; 
-                const merger = audioCtx.createChannelMerger(2);
-                osc1.connect(merger, 0, 0); osc2.connect(merger, 0, 1);
-                const gain = audioCtx.createGain(); gain.gain.value = 0.15; 
-                merger.connect(gain); gain.connect(audioCtx.destination);
-                osc1.start(); osc2.start(); currentNodes.push(osc1, osc2, merger, gain);
-            }
+            if(type === 'space') { const bufferSize = 2 * audioCtx.sampleRate; const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const output = noiseBuffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1; const noise = audioCtx.createBufferSource(); noise.buffer = noiseBuffer; noise.loop = true; const filter = audioCtx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 200; const gain = audioCtx.createGain(); gain.gain.value = 0.8; noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(0); currentNodes.push(noise, filter, gain); } 
+            else if(type === 'rain') { const bufferSize = 2 * audioCtx.sampleRate; const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const output = noiseBuffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1; const noise = audioCtx.createBufferSource(); noise.buffer = noiseBuffer; noise.loop = true; const filter = audioCtx.createBiquadFilter(); filter.type = "bandpass"; filter.frequency.value = 1000; filter.Q.value = 0.5; const gain = audioCtx.createGain(); gain.gain.value = 0.3; noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(0); currentNodes.push(noise, filter, gain); } 
+            else if (type === 'binaural') { const osc1 = audioCtx.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = 200; const osc2 = audioCtx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = 210; const merger = audioCtx.createChannelMerger(2); osc1.connect(merger, 0, 0); osc2.connect(merger, 0, 1); const gain = audioCtx.createGain(); gain.gain.value = 0.15; merger.connect(gain); gain.connect(audioCtx.destination); osc1.start(); osc2.start(); currentNodes.push(osc1, osc2, merger, gain); }
         }
         window.toggleAudioHub = function() {
-            const btn = document.getElementById('audio-btn');
-            if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); startSynth(); audioCtx.suspend(); }
-            if (isAudioPlaying) {
-                audioCtx.suspend(); btn.innerHTML = '🎧 Audio: OFF'; btn.classList.remove('text-neon-blue', 'border-neon-blue', 'shadow-[0_0_10px_rgba(56,189,248,0.3)]');
-            } else {
-                if(currentNodes.length === 0) startSynth(); 
-                audioCtx.resume(); btn.innerHTML = '🔊 Audio: ON'; btn.classList.add('text-neon-blue', 'border-neon-blue', 'shadow-[0_0_10px_rgba(56,189,248,0.3)]');
-            }
+            primeAudioContext();
+            const btn = document.getElementById('audio-btn'); 
+            if (isAudioPlaying) { audioCtx.suspend(); btn.innerHTML = '🎧 Audio: OFF'; btn.classList.remove('text-neon-blue', 'border-neon-blue', 'shadow-[0_0_10px_rgba(56,189,248,0.3)]'); } else { if(currentNodes.length === 0) startSynth(); audioCtx.resume(); btn.innerHTML = '🔊 Audio: ON'; btn.classList.add('text-neon-blue', 'border-neon-blue', 'shadow-[0_0_10px_rgba(56,189,248,0.3)]'); }
             isAudioPlaying = !isAudioPlaying;
         };
+
+        // --- ORB COLOR LOGIC 🌌 ---
+        function updateOrbColors() {
+            const orb1 = document.querySelector('.orb-1'); const orb2 = document.querySelector('.orb-2'); const orb3 = document.querySelector('.orb-3');
+            if(!orb1) return;
+            if(currentExam === 'JEE') { orb1.style.background = '#c084fc'; orb2.style.background = '#38bdf8'; orb3.style.background = '#f472b6'; } 
+            else if(currentExam === 'NEET') { orb1.style.background = '#4ade80'; orb2.style.background = '#2dd4bf'; orb3.style.background = '#3b82f6'; } 
+            else { orb1.style.background = '#fb923c'; orb2.style.background = '#facc15'; orb3.style.background = '#f87171'; }
+        }
 
         function initVisualBackground() {
             if(document.querySelector('.bg-orb')) return; 
             const bgContainer = document.createElement('div'); bgContainer.innerHTML = `<div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div><div class="bg-orb orb-3"></div>`;
-            for(let i=0; i<75; i++) {
-                const star = document.createElement('div'); star.className = 'star';
-                const size = Math.random() * 3 + 1; star.style.width = size + 'px'; star.style.height = size + 'px';
-                star.style.left = Math.random() * 100 + 'vw'; star.style.top = Math.random() * 100 + 'vh'; star.style.setProperty('--duration', (Math.random() * 3 + 1.5) + 's');
-                bgContainer.appendChild(star);
-            }
-            document.body.prepend(bgContainer);
+            for(let i=0; i<75; i++) { const star = document.createElement('div'); star.className = 'star'; const size = Math.random() * 3 + 1; star.style.width = size + 'px'; star.style.height = size + 'px'; star.style.left = Math.random() * 100 + 'vw'; star.style.top = Math.random() * 100 + 'vh'; star.style.setProperty('--duration', (Math.random() * 3 + 1.5) + 's'); bgContainer.appendChild(star); } document.body.prepend(bgContainer);
+            updateOrbColors();
         }
 
         // --- THE EXAMINER'S EYE (Random Coach Toasts) 👁️ ---
         function initCoachToasts() {
             setInterval(() => {
-                if(document.hidden || Math.random() > 0.7) return; // 30% chance to show
+                if(document.hidden || Math.random() > 0.7) return; 
                 const msgs = coachToasts[currentExam] || coachToasts['JEE'];
                 const toast = document.getElementById('coach-toast'); const msg = document.getElementById('toast-message');
                 msg.innerText = `"${msgs[Math.floor(Math.random() * msgs.length)]}"`;
@@ -980,7 +1026,6 @@
                     if (e.type === "touchmove") { currentX = e.touches[0].clientX - initialX; currentY = e.touches[0].clientY - initialY; } 
                     else { currentX = e.clientX - initialX; currentY = e.clientY - initialY; }
                     
-                    // Fixed Screen boundaries to prevent the void 🌌
                     const rect = timerEl.getBoundingClientRect();
                     const minX = -window.innerWidth + rect.width + 20; const maxX = 20;
                     const minY = -window.innerHeight + rect.height + 20; const maxY = 20;
@@ -995,25 +1040,9 @@
         }
 
         // Modals
-        window.firePanicButton = function() {
-            document.getElementById('motivationalQuote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
-            const modal = document.getElementById('panicModal'); modal.classList.remove('hidden'); modal.classList.add('flex');
-            setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); document.getElementById('panicContent').classList.remove('scale-95'); document.getElementById('panicContent').classList.add('scale-100'); }, 10);
-        };
-        window.closePanicButton = function() {
-            const modal = document.getElementById('panicModal'); modal.classList.remove('opacity-100'); modal.classList.add('opacity-0'); document.getElementById('panicContent').classList.remove('scale-100'); document.getElementById('panicContent').classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
-        };
-        window.toggleSupportModal = function() {
-            const modal = document.getElementById('supportModal'); const content = document.getElementById('supportContent');
-            if(modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden'); modal.classList.add('flex');
-                setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
-            } else {
-                modal.classList.remove('opacity-100'); modal.classList.add('opacity-0'); content.classList.remove('scale-100'); content.classList.add('scale-95');
-                setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
-            }
-        };
+        window.firePanicButton = function() { document.getElementById('motivationalQuote').innerText = quotes[Math.floor(Math.random() * quotes.length)]; const modal = document.getElementById('panicModal'); modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); document.getElementById('panicContent').classList.remove('scale-95'); document.getElementById('panicContent').classList.add('scale-100'); }, 10); };
+        window.closePanicButton = function() { const modal = document.getElementById('panicModal'); modal.classList.remove('opacity-100'); modal.classList.add('opacity-0'); document.getElementById('panicContent').classList.remove('scale-100'); document.getElementById('panicContent').classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); };
+        window.toggleSupportModal = function() { const modal = document.getElementById('supportModal'); const content = document.getElementById('supportContent'); if(modal.classList.contains('hidden')) { modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10); } else { modal.classList.remove('opacity-100'); modal.classList.add('opacity-0'); content.classList.remove('scale-100'); content.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); } };
     </script>
 </body>
 </html>
